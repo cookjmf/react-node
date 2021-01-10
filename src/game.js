@@ -8,6 +8,8 @@ import MsgMgr from './msgMgr';
 
 import * as Util from './util';
 
+// version 210110_1730
+
 class Game extends React.Component {
   constructor(props) {   
     super(props);
