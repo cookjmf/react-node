@@ -8,7 +8,7 @@ import MsgMgr from './msgMgr';
 
 import * as Util from './util';
 
-// version 210110_1732
+// version 210110_1743
 
 class Game extends React.Component {
   constructor(props) {   
