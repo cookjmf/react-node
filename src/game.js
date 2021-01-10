@@ -59,7 +59,16 @@ class Game extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     console.log('Game : shouldComponentUpdate : enter');
-    return this.state.updateTimestamp != nextState.updateTimestamp;
+    let res = false;
+    console.log('Game : shouldComponentUpdate : this.state.updateTimestamp : ...'+this.state.updateTimestamp+'...');
+    console.log('Game : shouldComponentUpdate : nextState.updateTimestamp : ....'+nextState.updateTimestamp+'...');
+    if (this.state.updateTimestamp !== nextState.updateTimestamp) {
+      res = true;
+      console.log('Game : shouldComponentUpdate : new value for state.updateTimestamp so will render');
+    } else {
+      console.log('Game : shouldComponentUpdate : SAME value for state.updateTimestamp so will NOT render');
+    }
+    return res;
   }
 
   // on methods
@@ -71,8 +80,8 @@ class Game extends React.Component {
     console.log('Game : START : onChangeAction ----> '+newAction+' --------->');
     console.log('Game : START : -------------------------------------------->');
 
-    // set state since render needed
-    this.setState({ action: newAction });    
+    // set state and updateTimestamp since render needed
+    this.setState({ action: newAction, updateTimestamp: Util.newDate() });    
   }
   
   onChangeName(newName) {
@@ -85,7 +94,7 @@ class Game extends React.Component {
     //   
     let action = this.state.action;
     if (action === Util.ACTION_DELETE) {
-      this.setState({ loading:true, name: newName });   
+      this.setState({ name: newName });   
       this.storeDelete(newName);
 
     } else {
@@ -165,7 +174,7 @@ class Game extends React.Component {
 
     let cellMap = this.toggleParamCell(id);
 
-    this.setState({ loading:true, cellMap: cellMap});
+    this.setState({ cellMap: cellMap});
 
     this.saveInUpdate();
 
@@ -173,13 +182,13 @@ class Game extends React.Component {
 
   onKeyUpParamAcrossTextarea(value) {
     console.log('Game : START : -------------------------------------------->');
-    console.log('Game : START : onKeyUpParamAcrossTextarea ----------------------->');
+    console.log('Game : START : onKeyUpParamAcrossTextarea ---->'+value+'------------->');
     console.log('Game : START : -------------------------------------------->');  
 
     let atext = Util.convertCluesRomanDash(value);
     atext = Util.convertCluesDash(atext);
 
-    this.setState({ loading:true, horizClues: atext });
+    this.setState({ horizClues: atext });
 
     this.saveInUpdate();
 
@@ -187,13 +196,13 @@ class Game extends React.Component {
 
   onKeyUpParamDownTextarea(value) {
     console.log('Game : START : -------------------------------------------->');
-    console.log('Game : START : onKeyUpParamDownTextarea ----------------------->');
+    console.log('Game : START : onKeyUpParamDownTextarea ---->'+value+'------------->');
     console.log('Game : START : -------------------------------------------->');  
 
     let dtext = Util.convertCluesRomanDash(value);
     dtext = Util.convertCluesDash(dtext);
 
-    this.setState({ loading:true, vertClues: dtext });
+    this.setState({ vertClues: dtext });
 
     this.saveInUpdate();
 
@@ -313,13 +322,13 @@ class Game extends React.Component {
     .then(
       data => {
         console.log('Game : storeInsert : fetch : data : ...'+JSON.stringify(data)+'...');
-        this.resultSave(true);
+        this.resultInsert(true);
       }
     )
     .catch(
       err => {
         console.log('Game : storeInsert : catch : err : ...'+JSON.stringify(err)+'...');
-        this.resultSave(false);
+        this.resultInsert(false);
       }
     )  
   }
@@ -342,13 +351,13 @@ class Game extends React.Component {
     .then(
       data => {
         console.log('Game : storeUpdate : fetch : data : ...'+JSON.stringify(data)+'...');
-        this.resultSave(true);
+        this.resultUpdate(true);
       }
     )
     .catch(
       err => {
         console.log('Game : storeUpdate : catch : err = ...'+JSON.stringify(err)+'...');
-        this.resultSave(false);
+        this.resultUpdate(false);
       }
     )  
   }
@@ -413,40 +422,81 @@ class Game extends React.Component {
     } else if (action === Util.ACTION_PLAY) {
       // resultSavePlay(ok);
     } else if (action === Util.ACTION_CREATE) {
-      this.resultSaveCreate(ok);
+      this.resultCreateSave(ok);
     } else if (action === Util.ACTION_UPDATE) {
       // resultSaveUpdate(ok);
     }
   }
 
-  resultSaveCreate(ok) {
-    console.log('Game : resultSaveCreate : enter');
+  resultUpdate(ok) {
+    console.log('Game : resultUpdate : enter');
     let action = this.state.action;
+    if (action === Util.ACTION_IMPORT) {
+      // resultSaveImport(ok);
+    } else if (action === Util.ACTION_PLAY) {
+      // resultSavePlay(ok);
+    } else if (action === Util.ACTION_CREATE) {
+      this.resultCreateUpdate(ok);
+    } else if (action === Util.ACTION_UPDATE) {
+      // resultSaveUpdate(ok);
+    }
+  }
 
+  resultInsert(ok) {
+    console.log('Game : resultInsert : enter');
+    let action = this.state.action;
+    if (action === Util.ACTION_IMPORT) {
+      // resultSaveImport(ok);
+    } else if (action === Util.ACTION_PLAY) {
+      // resultSavePlay(ok);
+    } else if (action === Util.ACTION_CREATE) {
+      this.resultCreateInsert(ok);
+    } else if (action === Util.ACTION_UPDATE) {
+      // resultSaveUpdate(ok);
+    }
+  }
+
+  resultCreateUpdate(ok) {
+    console.log('Game : resultCreateUpdate : enter');
     if (!ok) {
       this.msgMgr.addError('Failed to save.');
     } else {
-      let name = this.state.name;
-
-      if (action === Util.ACTION_CREATE) {
-        if (Util.isExample(name)) {
-          this.msgMgr.addInfo('Created example : '+name+'.');
-        } else {
-          this.msgMgr.addInfo('Created : '+name+', now set blanks and clues');
-        }
-      } else {
-        // save message
-        // showConfirmMessage('Updated at '+date1()+", Validate ?");
-        this.msgMgr.addInfo('Updated : '+name+' at '+Util.date1() );
-      } 
-      
- 
+      this.msgMgr.addInfo('Updated : '+this.state.name+' at '+Util.date1() );
     }
     let msg = this.msgMgr.getMsg();
-
     this.setState( {
-      msg: msg , updateTimestamp: Util.newDate()} );
+      msg: msg , updateTimestamp: Util.newDate()
+    } );
+  }
 
+  resultCreateInsert(ok) {
+    console.log('Game : resultCreateInsert : enter');
+    if (!ok) {
+      this.msgMgr.addError('Failed to save.');
+    } else {
+      if (Util.isExample(this.state.name)) {
+        this.msgMgr.addInfo('Created example : '+this.state.name+'.');
+      } else {
+        this.msgMgr.addInfo('Created : '+this.state.name+', now set blanks and clues');       
+      } 
+    }
+    let msg = this.msgMgr.getMsg();
+    this.setState( {
+      msg: msg , updateTimestamp: Util.newDate()
+    } );
+  }
+
+  resultCreateSave(ok) {
+    console.log('Game : resultCreateSave : enter');
+    if (!ok) {
+      this.msgMgr.addError('Failed to save.');
+    } else {
+      // should not happen
+    }
+    let msg = this.msgMgr.getMsg();
+    this.setState( {
+      msg: msg , updateTimestamp: Util.newDate()
+    } );
   }
 
   // note: not used yet
@@ -698,56 +748,45 @@ class Game extends React.Component {
     let action = this.state.action;
     let name = this.state.name;
     let size = this.state.size;
-    let loading = this.state.loading;
-    let msg = this.state.msg;
 
-    if (loading) {
-      if (msg) {
-        return this.renderMessage();
+    if (action === Util.ACTION_CREATE) {
+      if (name === '') {
+        // name + size to be chosen
+        return this.renderCreate();
       } else {
-        return (
-          <p>Loading</p>
-        )
-      }
-    } else {
-      if (action === Util.ACTION_CREATE) {
-        if (name === '') {
-          // name + size to be chosen
-          return this.renderCreate();
+        if (Util.isExample(name)) {
+          // example name has been chosen, cword saved, show message
+          return this.renderSetupNewExample();
         } else {
-          if (Util.isExample(name)) {
-            // example name has been chosen, cword saved, show message
-            return this.renderSetupNewExample();
+          if (size === '') {
+            // name has been chosen, size to be chosen
+            return this.renderCreateWithName();
           } else {
-            if (size === '') {
-              // name has been chosen, size to be chosen
-              return this.renderCreateWithName();
-            } else {
-              // name, size has been chosen, cword saved, show message and params
-              return this.renderSetupNew();
-            }
+            // name, size has been chosen, cword saved, show message and params
+            return this.renderSetupNew();
           }
         }
-      // } else if (this.state.action === Util.ACTION_PLAY) {
+      }
+    // } else if (this.state.action === Util.ACTION_PLAY) {
 
-      // } else if (this.state.action === Util.ACTION_UPDATE) {
+    // } else if (this.state.action === Util.ACTION_UPDATE) {
 
-      // } else if (this.state.action === Util.ACTION_EXPORT) {
+    // } else if (this.state.action === Util.ACTION_EXPORT) {
 
-      // } else if (this.state.action === Util.ACTION_IMPORT) {
+    // } else if (this.state.action === Util.ACTION_IMPORT) {
 
-      } else if (action === Util.ACTION_DELETE) {
-        if (name === '') {
-          return this.renderDelete();
-        } else {
-          return this.renderDeleteMessage() 
-        }
-      } else if (this.state.action === Util.ACTION_CLEAR) {
-        return this.renderInit();   
+    } else if (action === Util.ACTION_DELETE) {
+      if (name === '') {
+        return this.renderDelete();
       } else {
-        return this.renderInit();        
-      }   
-    }
+        return this.renderDeleteMessage() 
+      }
+    } else if (this.state.action === Util.ACTION_CLEAR) {
+      return this.renderInit();   
+    } else {
+      return this.renderInit();        
+    }   
+    
   }
 
   // util methods
@@ -775,10 +814,7 @@ class Game extends React.Component {
       cellMap.delete(id);
     }
 
-    // let blanks = this.getBlanks(blankMap);
-    // console.log('blanks : ['+blanks+']');
     return cellMap;
-
   }
 
   setupNew(size) {
@@ -800,7 +836,7 @@ class Game extends React.Component {
       });
     } else {
 
-      this.setState({ loading : true, size: size });
+      this.setState({ size: size });
 
       let cwObj = Util.EXAMPLE_MAP.get(name);
       if (cwObj != null) {    
