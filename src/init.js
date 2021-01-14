@@ -79,7 +79,10 @@ class Init extends React.Component {
     console.log('Init : render : props : '+JSON.stringify(this.props));
 
     let action = this.props.action;
-    let name = this.props.name;
+    let name = '';
+    if (this.props.name != null) {
+      name = this.props.name;
+    }
     
     if (action === Util.ACTION_CREATE) {
       return this.renderCreate();

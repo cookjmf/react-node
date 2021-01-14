@@ -4,6 +4,7 @@ import Message from './message';
 import Param from './param';
 
 import Cell from './cell';
+import Cword from './cword';
 import MsgMgr from './msgMgr';
 
 import * as Util from './util';
@@ -38,14 +39,16 @@ class Game extends React.Component {
       existingNames: null,
       action: '',
       msg: null,
-      name: '',
-      size: '',
 
-      // key : y.x   value : Cell
-      cellMap: null,
+      cword: null,
+      // name: '',
+      // size: '',
 
-      horizClues: '',  
-      vertClues: '',
+      // // key : y.x   value : Cell
+      // cellMap: null,
+
+      // horizClues: '',  
+      // vertClues: '',
 
     };
   }
@@ -96,8 +99,10 @@ class Game extends React.Component {
     //   
     let action = this.state.action;
     if (action === Util.ACTION_DELETE) {
-      this.setState({ name: newName });   
-      this.storeDelete(newName);
+      let cword = new Cword();
+      cword.name = newName;
+      // this.setState({ name: newName });   
+      this.storeDelete(cword);
 
     } else {
       // other actions here
@@ -114,9 +119,11 @@ class Game extends React.Component {
 
     let action = this.state.action;
     if (action === Util.ACTION_CREATE) {
-      this.setState({ name: newName }); 
+      let cword = new Cword();
+      cword.name = newName;
+      this.setState({ cword: cword }); 
       if (Util.isExample(newName)) {
-        this.setupNew(0);
+        this.setupNew(cword);
       } 
     } else {
       console.log("logic error : in onChangeNewName but action is not CREATE");
@@ -129,10 +136,17 @@ class Game extends React.Component {
     console.log('Game : START : onChangeSize ----> '+newSize+' --------->');
     console.log('Game : START : -------------------------------------------->');  
 
+    let cword = this.state.cword;
+    cword.size = newSize;
+
+    // cword.name = this.state.name;   
+    // cword.maxAcross = Util.maxAcross(newSize);
+    // cword.maxDown = Util.maxDown(newSize);
+
     let action = this.state.action;
     if (action === Util.ACTION_CREATE) {
 
-      this.setupNew(newSize);
+      this.setupNew(cword);
 
     } else {
       console.log("logic error : in onChangeSize but action is not CREATE");
@@ -146,7 +160,8 @@ class Game extends React.Component {
 
     this.msgMgr.clear(); 
 
-    let name = this.state.name;
+    let cword = this.state.cword;
+    let name = cword.name;
     let action = this.state.action;
     let existingNames = this.state.existingNames;
 
@@ -174,11 +189,15 @@ class Game extends React.Component {
     console.log('Game : START : onClickParamCell ----> '+id+'------------->');
     console.log('Game : START : -------------------------------------------->');  
 
-    let cellMap = this.toggleParamCell(id);
+    // let cwObj = this.makeCwObject();
+    let cwObj = this.state.cword;
+    let cellMap = this.toggleParamCell(cwObj, id);
+    cwObj.cellMap = cellMap;
 
-    this.setState({ cellMap: cellMap});
+    // this.setState({ cellMap: cellMap});
 
-    this.saveInUpdate();
+    this.storeSave(cwObj);
+    // this.saveInUpdate();
 
   }
 
@@ -187,12 +206,16 @@ class Game extends React.Component {
     console.log('Game : START : onKeyUpParamAcrossTextarea ---->'+value+'------------->');
     console.log('Game : START : -------------------------------------------->');  
 
+    // let cwObj = this.makeCwObject();
+
     let atext = Util.convertCluesRomanDash(value);
     atext = Util.convertCluesDash(atext);
 
-    this.setState({ horizClues: atext });
-
-    this.saveInUpdate();
+    let cwObj = this.state.cword;
+    // this.setState({ horizClues: atext });
+    cwObj.horizClues = atext;
+    this.storeSave(cwObj);
+    // this.saveInUpdate();
 
   }
 
@@ -201,12 +224,19 @@ class Game extends React.Component {
     console.log('Game : START : onKeyUpParamDownTextarea ---->'+value+'------------->');
     console.log('Game : START : -------------------------------------------->');  
 
+    // let cwObj = this.makeCwObject();
+
     let dtext = Util.convertCluesRomanDash(value);
     dtext = Util.convertCluesDash(dtext);
 
-    this.setState({ vertClues: dtext });
+    let cwObj = this.state.cword;
+    // this.setState({ horizClues: atext });
+    cwObj.horizClues = dtext;
+    this.storeSave(cwObj);
 
-    this.saveInUpdate();
+    // this.setState({ vertClues: dtext });
+
+    // this.saveInUpdate();
 
   }
 
@@ -237,7 +267,8 @@ class Game extends React.Component {
     ) 
   }
   
-  storeDelete(name) {
+  storeDelete(cword) {
+    let name = cword.name;
     console.log('Game : storeDelete : enter : name : '+name);
   
     fetch('/cwords/name/'+name, {
@@ -251,13 +282,13 @@ class Game extends React.Component {
     .then(
       data => {
         console.log('Game : storeDelete : fetch : data = ...'+JSON.stringify(data)+'...');
-        this.resultDelete(true, name);
+        this.resultDelete(true, cword);
       }
     )
     .catch(
       err => {
         console.log('Game : storeDelete : catch : err = ...'+JSON.stringify(err)+'...');
-        this.resultDelete(false, name);
+        this.resultDelete(false, cword);
       }
     ) 
   }
@@ -308,13 +339,13 @@ class Game extends React.Component {
 
   storeInsert(cwObj) {
     console.log('Game : storeInsert : enter');
-  
+    let objectForStore = cwObj.getStorageObject();
     fetch('/cwords', {
       method: 'POST', 
       headers: {
        'Content-type': 'application/json; charset=UTF-8' 
       },
-      body: JSON.stringify(cwObj)  
+      body: JSON.stringify(objectForStore)  
      })
     .then(
       response => {
@@ -324,26 +355,27 @@ class Game extends React.Component {
     .then(
       data => {
         console.log('Game : storeInsert : fetch : data : ...'+JSON.stringify(data)+'...');
-        this.resultInsert(true);
+        this.resultInsert(cwObj, true);
       }
     )
     .catch(
       err => {
         console.log('Game : storeInsert : catch : err : ...'+JSON.stringify(err)+'...');
-        this.resultInsert(false);
+        this.resultInsert(cwObj, false);
       }
     )  
   }
   
   storeUpdate(cwObj) {
     console.log('Game : storeUpdate : enter');
-  
+
+    let objectForStore = cwObj.getStorageObject();
     fetch('/cwords/name/'+cwObj.name, {
       method: 'PUT', 
       headers: {
        'Content-type': 'application/json; charset=UTF-8' 
       },
-      body: JSON.stringify(cwObj)  
+      body: JSON.stringify(objectForStore)  
      })
     .then(
       response => {
@@ -353,13 +385,13 @@ class Game extends React.Component {
     .then(
       data => {
         console.log('Game : storeUpdate : fetch : data : ...'+JSON.stringify(data)+'...');
-        this.resultUpdate(true);
+        this.resultUpdate(cwObj, true);
       }
     )
     .catch(
       err => {
         console.log('Game : storeUpdate : catch : err = ...'+JSON.stringify(err)+'...');
-        this.resultUpdate(false);
+        this.resultUpdate(cwObj, false);
       }
     )  
   }
@@ -430,7 +462,7 @@ class Game extends React.Component {
     }
   }
 
-  resultUpdate(ok) {
+  resultUpdate(cwObj, ok) {
     console.log('Game : resultUpdate : enter');
     let action = this.state.action;
     if (action === Util.ACTION_IMPORT) {
@@ -438,13 +470,13 @@ class Game extends React.Component {
     } else if (action === Util.ACTION_PLAY) {
       // resultSavePlay(ok);
     } else if (action === Util.ACTION_CREATE) {
-      this.resultCreateUpdate(ok);
+      this.resultCreateUpdate(cwObj, ok);
     } else if (action === Util.ACTION_UPDATE) {
       // resultSaveUpdate(ok);
     }
   }
 
-  resultInsert(ok) {
+  resultInsert(cwObj, ok) {
     console.log('Game : resultInsert : enter');
     let action = this.state.action;
     if (action === Util.ACTION_IMPORT) {
@@ -452,43 +484,65 @@ class Game extends React.Component {
     } else if (action === Util.ACTION_PLAY) {
       // resultSavePlay(ok);
     } else if (action === Util.ACTION_CREATE) {
-      this.resultCreateInsert(ok);
+      this.resultCreateInsert(cwObj, ok);
     } else if (action === Util.ACTION_UPDATE) {
       // resultSaveUpdate(ok);
     }
   }
 
-  resultCreateUpdate(ok) {
+  // resultCreateCommon(cwObj) {
+  //   console.log('Game : resultCreateCommon : enter');
+  //   let maxAcross = cwObj.maxAcross;
+  //   let maxDown = cwObj.maxDown;
+  //   let size = Util.size(maxAcross, maxDown);
+
+  //   let blanks = cwObj.blanks;
+  //   let cellValues = cwObj.cellValues;
+  //   let cellMap = this.setupCellMap(maxAcross, maxDown, blanks, cellValues);
+
+  //   let horizClues = cwObj.horizClues;
+  //   let vertClues = cwObj.vertClues;
+
+  //   this.setState(
+  //    { size: size, cellMap: cellMap, horizClues: horizClues, vertClues: vertClues}
+  //   );
+  // }
+
+  resultCreateUpdate(cwObj, ok) {
     console.log('Game : resultCreateUpdate : enter');
+    let name = cwObj.name;
     if (!ok) {
       this.msgMgr.addError('Failed to save.');
     } else {
-      this.msgMgr.addInfo('Updated : '+this.state.name+' at '+Util.date1() );
+      this.msgMgr.addInfo('Updated : '+name+' at '+Util.date1() );
     }
+    // this.resultCreateCommon(cwObj);
     let msg = this.msgMgr.getMsg();
     this.setState( {
-      msg: msg , updateTimestamp: Util.newDate()
+      msg: msg , cword: cwObj, updateTimestamp: Util.newDate()
     } );
   }
 
-  resultCreateInsert(ok) {
+  resultCreateInsert(cwObj, ok) {
     console.log('Game : resultCreateInsert : enter');
+    let name = cwObj.name;
     if (!ok) {
       this.msgMgr.addError('Failed to save.');
     } else {
       if (Util.isExample(this.state.name)) {
-        this.msgMgr.addInfo('Created example : '+this.state.name+'.');
+        this.msgMgr.addInfo('Created example : '+name+'.');
       } else {
-        this.msgMgr.addInfo('Created : '+this.state.name+', now set blanks and clues');       
+        this.msgMgr.addInfo('Created : '+name+', now set blanks and clues');       
       } 
     }
+    // this.resultCreateCommon(cwObj);
     let msg = this.msgMgr.getMsg();
     this.setState( {
-      msg: msg , updateTimestamp: Util.newDate()
+      msg: msg , cword: cwObj, updateTimestamp: Util.newDate()
     } );
   }
 
-  resultCreateSave(ok) {
+  resultCreateSave(cwObj, ok) {
     console.log('Game : resultCreateSave : enter');
     if (!ok) {
       this.msgMgr.addError('Failed to save.');
@@ -497,7 +551,7 @@ class Game extends React.Component {
     }
     let msg = this.msgMgr.getMsg();
     this.setState( {
-      msg: msg , updateTimestamp: Util.newDate()
+      msg: msg , cword: cwObj, updateTimestamp: Util.newDate()
     } );
   }
 
@@ -506,39 +560,47 @@ class Game extends React.Component {
     console.log('Game : resultGet : enter');
     if (!ok) {
       this.msgMgr.addError('Failed to get crossword : '+name);
+      let msg = this.msgMgr.getMsg();
+      this.setState( {
+        msg: msg , updateTimestamp: Util.newDate()
+      } );
 
     } else {
+      let cword = new Cword();
 
-      // let maxAcross = 1 * cwObj.maxAcross;
-      // console.log('maxAcross : ['+maxAcross+']');
-      // let maxDown = 1 * cwObj.maxDown;
-      // console.log('maxDown : ['+maxDown+']');
+      cword.setupCwordFromStorageObject(cwObj);
+      // // let maxAcross = 1 * cwObj.maxAcross;
+      // // console.log('maxAcross : ['+maxAcross+']');
+      // // let maxDown = 1 * cwObj.maxDown;
+      // // console.log('maxDown : ['+maxDown+']');
 
-      let size = Util.size(cwObj.maxAcross, cwObj.maxDown);
+      // let size = Util.size(cwObj.maxAcross, cwObj.maxDown);
 
-      let blanks = cwObj.blanks;
-      console.log('blanks : ['+blanks+']');
-      let horizClues = cwObj.horizClues;
-      horizClues = Util.removeNewLines(horizClues); 
-      console.log('horizClues : ['+horizClues+']');
-      let vertClues = cwObj.vertClues;
-      vertClues = Util.removeNewLines(vertClues); 
-      console.log('vertClues : ['+vertClues+']');  
-      let cellValues = cwObj.cellValues;
-      console.log('cellValues : ['+cellValues+']'); 
+      // let blanks = cwObj.blanks;
+      // console.log('blanks : ['+blanks+']');
+      // let horizClues = cwObj.horizClues;
+      // horizClues = Util.removeNewLines(horizClues); 
+      // console.log('horizClues : ['+horizClues+']');
+      // let vertClues = cwObj.vertClues;
+      // vertClues = Util.removeNewLines(vertClues); 
+      // console.log('vertClues : ['+vertClues+']');  
+      // let cellValues = cwObj.cellValues;
+      // console.log('cellValues : ['+cellValues+']'); 
       // this.setState( { name: name, maxAcross: maxAcross, maxDown: maxDown, blanks: blanks,
       // horizClues: horizClues, vertClues: vertClues, cellValues: cellValues} );
 
-      this.setState( { name: name, size: size, blanks: blanks,
-        horizClues: horizClues, vertClues: vertClues, cellValues: cellValues,
+      this.setState( { 
+        // name: name, size: size, blanks: blanks,
+        // horizClues: horizClues, vertClues: vertClues, cellValues: cellValues,
+        cword: cword,
         updateTimestamp: Util.newDate()} );
   
     }
-  
   }
 
-  resultDelete(deletedOK, name) {
+  resultDelete(deletedOK, cword) {
     console.log('Game : resultDelete : enter');
+    let name = cword.name;
     if (!deletedOK) {
       this.msgMgr.addError('Failed to delete crossword : '+name);
     } else {
@@ -546,18 +608,18 @@ class Game extends React.Component {
     }
     let msg = this.msgMgr.getMsg();
     // set state since new render needed
-    this.setState( {msg : msg, updateTimestamp: Util.newDate()} );
+    this.setState( {msg : msg, cword: cword, updateTimestamp: Util.newDate()} );
   }
 
-  resultInitCellMap() {
-    console.log('Game : resultInitCellMap : enter');
+  // resultInitCellMap() {
+  //   console.log('Game : resultInitCellMap : enter');
 
-    let msg = this.msgMgr.getMsg();
-    if (msg!= null) {
-        this.setState( {msg : msg, updateTimestamp: Util.newDate()} );
-    }
+  //   let msg = this.msgMgr.getMsg();
+  //   if (msg!= null) {
+  //       this.setState( {msg : msg, updateTimestamp: Util.newDate()} );
+  //   }
 
-  }
+  // }
 
   // render methods
   // NEVER CHANGE STATE HERE
@@ -566,14 +628,16 @@ class Game extends React.Component {
     // chose create, show name, size
     console.log('Game : renderCreate : enter');
     console.log('Game : renderCreate : state : '+JSON.stringify(this.state));
+
+    // let cword = this.state.cword;
+    // name={ cword.name}
+    // size={ cword.size}
     return (
       <div className="game">   
         <Init 
           action={ this.state.action}
-          selectedAction={Util.ACTION_CREATE}
-          name={ this.state.name}
-          selectedName={Util.NAME_TITLE}
-          size={ this.state.size}
+          selectedAction={Util.ACTION_CREATE}         
+          selectedName={Util.NAME_TITLE}       
           selectedSize={ Util.SIZE_TITLE }
           onChangeAction={ this.onChangeAction }
           onChangeName={ this.onChangeName }
@@ -592,14 +656,17 @@ class Game extends React.Component {
     // chose create, entered name, get size
     console.log('Game : renderCreateWithName : enter');
     console.log('Game : renderCreateWithName : state : '+JSON.stringify(this.state));
+
+    let cword = this.state.cword;
+
     return (
       <div className="game">   
         <Init 
           action={ this.state.action}
           selectedAction={Util.ACTION_CREATE}
-          name={ this.state.name}
+          name={ cword.name}
           selectedName={this.state.name}
-          size={ this.state.size}
+          size={ cword.size}
           selectedSize={ Util.SIZE_TITLE }
           onChangeAction={ this.onChangeAction }
           onChangeName={ this.onChangeName }
@@ -632,8 +699,9 @@ class Game extends React.Component {
     console.log('Game : renderSetupNew : enter');
     console.log('Game : renderSetupNew : state : '+JSON.stringify(this.state));
 
+    let cword = this.state.cword;
     let cells = {};
-    let cellMap = this.state.cellMap;
+    let cellMap = cword.cellMap;
     if (cellMap != null && cellMap.size > 0) {
       cells = Util.mapToObject(cellMap);
     }
@@ -645,7 +713,7 @@ class Game extends React.Component {
         <Init 
           action=''
           selectedAction={ Util.ACTION_TITLE }
-          selectedSize={ this.state.selectedSize }
+          selectedSize={ cword.size }
           existingNames={ this.state.existingNames }
           onChangeAction={ this.onChangeAction }
         />
@@ -654,11 +722,11 @@ class Game extends React.Component {
           onClick={ this.onClickMessageClose }
         /> 
         <Param
-          name={ this.state.name}
-          size={ this.state.size}
+          name={ cword.name}
+          size={ cword.size}
           cells={ cells }
-          horizClues={ this.state.horizClues }
-          vertClues={ this.state.vertClues }
+          horizClues={ cword.horizClues }
+          vertClues={ cword.vertClues }
           onClickParamCell={ this.onClickParamCell }
           onKeyUpParamAcrossTextarea={ this.onKeyUpParamAcrossTextarea }
           onKeyUpParamDownTextarea={ this.onKeyUpParamDownTextarea }
@@ -692,12 +760,14 @@ class Game extends React.Component {
     // chose delete
     console.log('Game : renderDelete : enter');
     console.log('Game : renderDelete : state : '+JSON.stringify(this.state));
+
+    // let cword = this.state.cword;
+    // name={ cword.name}
     return (
       <div className="game"> 
         <Init 
           action={ this.state.action}
           selectedAction={Util.ACTION_DELETE}
-          name={ this.state.name}
           existingNames={ this.state.existingNames }
           onChangeName={ this.onChangeName }
         /> 
@@ -713,12 +783,15 @@ class Game extends React.Component {
     // chose delete
     console.log('Game : renderDeleteMessage : enter');
     console.log('Game : renderDeleteMessage : state : '+JSON.stringify(this.state));
+
+    let cword = this.state.cword;
+
     return (
       <div className="game"> 
         <Init 
           action={ this.state.action}
           selectedAction={Util.ACTION_TITLE}
-          name={ this.state.name}
+          name={ cword.name}
           existingNames={ this.state.existingNames }
           onChangeName={ this.onChangeName }
         /> 
@@ -748,8 +821,14 @@ class Game extends React.Component {
     console.log('Game : render : enter');
     console.log('Game : render : state : '+JSON.stringify(this.state));
     let action = this.state.action;
-    let name = this.state.name;
-    let size = this.state.size;
+
+    let name = '';
+    let size = '';
+    let cword = this.state.cword;
+    if (cword != null) {
+      name = cword.name;
+      size = cword.size;
+    }
 
     if (action === Util.ACTION_CREATE) {
       if (name === '') {
@@ -797,11 +876,11 @@ class Game extends React.Component {
   //  - return values
   //  - call other methods
 
-  toggleParamCell(id) {
+  toggleParamCell(cword, id) {
     console.log('Game : toggleParamCell : enter : id : '+id);
 
     // get the current state of cells
-    let cellMap = this.state.cellMap;
+    let cellMap = cword.cellMap;
 
     // toggle the cell in cellMap : key is y.x
 
@@ -819,248 +898,269 @@ class Game extends React.Component {
     return cellMap;
   }
 
-  setupNew(size) {
-    console.log('Game : setupNew : enter : size : '+size);
-    let name = this.state.name;
+  setupNew(cword) {
+    console.log('Game : setupNew : enter');
+    let name = cword.name;
 
     let existingNames = this.state.existingNames;
-
+    
     if (!Util.isValidName(name)) {
       this.msgMgr.addError('Invalid name');
       this.setState({ 
-        msg : this.msgMgr.getMsg() 
+        msg : this.msgMgr.getMsg() , updateTimestamp: Util.newDate()
       });
 
     } else if (Util.isDuplicateName(existingNames, name)) {
       this.msgMgr.addError('Duplicate name');
       this.setState({ 
-        msg : this.msgMgr.getMsg() 
+        msg : this.msgMgr.getMsg() , updateTimestamp: Util.newDate()
       });
     } else {
 
-      this.setState({ size: size });
+      // this.setState({ size: size });
+      // cword.maxAcross = Util.maxAcross(size);
+      // cword.maxDown = Util.maxDown(size);
 
       let cwObj = Util.EXAMPLE_MAP.get(name);
       if (cwObj != null) {    
         console.log('Game : setupNew : example case');
 
-        this.saveCwordObject(cwObj);
+        // this is in storage format so convert back to cword format
+        let cword = new Cword();
+        cword.setupCwordFromStorageObject(cwObj);
+
+        this.storeSave(cword);
       } else {
         console.log('Game : setupNew : non example case');
 
-        let cword = {};
-        cword.name = this.state.name;
-        cword.maxAcross = Util.maxAcross(size);
-        cword.maxDown = Util.maxDown(size);
-
         // all empty on creation
-        cword.blanks = '';
-        cword.horizClues = '';
-        cword.vertClues = '';
-        cword.cellValues = '';
 
-        this.saveCwordObject(cword);
+        this.storeSave(cword);
       }
     }
   }
 
-  makeCwObject() {
-    let cword = {};
-    let size = this.state.size;
+  // getCwordFromStorageObject(cwObj) {
+  //   let cword = new Cword();
+  //   cword.name = cwObj.name;
+  //   cword.size = Util.size(cwObj.maxAcross, cwObj.maxDown);
+  //   cword.horizClues = horizClues;
+  //   cword.vertClues = vertClues;
+  //   cword.cellMap = Util.getCellMap(cwObj.maxAcross, cwObj.maxDown, cwObj.blanks, cwObj.cellValues);
 
-    cword.name = this.state.name;
-    cword.maxAcross = Util.maxAcross(size);
-    cword.maxDown = Util.maxDown(size);
+  //   return cword;
+  // }
 
-    cword.blanks = this.getBlanks();
-    cword.horizClues = this.horizClues;
-    cword.vertClues = this.vertClues;
-    cword.cellValues = this.getCellValues();
+  // makeCwObject() {
+  //   // read from state, make cword object and return it
+  //   let name = this.state.name;
+  //   let size = this.state.size;
+  //   let horizClues = this.state.horizClues;
+  //   let vertClues = this.state.horizClues;
+  //   let cellMap = this.state.cellMap;
 
-    return cword;
-  }
+  //   let maxAcross = Util.maxAcross(size);
+  //   let maxDown = Util.maxDown(size);
 
-  getBlanks() {
-    let size = this.state.size;
-    let maxAcross = Util.maxAcross(size);
-    let maxDown = Util.maxAcross(size);
-    let cellMap = this.state.cellMap;
-    let blanks = '';
-    let lines = '';
-    for (let y=1; y<=maxDown; y++) {
-      let line = '';
-      for (let x=1; x<=maxAcross; x++) {
-        let cellKey = Util.cellKey(y, x);
-        if (!cellMap.has(cellKey)) {
-          if (line === '') {
-            line = ''+x;
-          } else {
-            line += ','+x;
-          }
-        }
-      }
-      if (line.length > 0) {
-        line = y+' '+line;
-        lines += line+';';
-      }
-    }
-    lines = lines.trim();
-    blanks = lines;
-    return blanks;
-  }
+  //   let cword = new Cword();
+  //   cword.name = name;
+  //   cword.maxAcross = maxAcross;
+  //   cword.maxDown = maxDown;
+  //   cword.horizClues = horizClues;
+  //   cword.vertClues = vertClues;
+  //   cword.cellMap = cellMap;
 
-  getCellValues() {
-    let size = this.state.size;
-    let maxAcross = Util.maxAcross(size);
-    let maxDown = Util.maxAcross(size);
-    let cellMap = this.state.cellMap;
+  //   cword.setupBlanks();
+  //   cword.setupCellValues();
 
-    let cellValues = {};
-    for (let y=1; y<=maxDown; y++) {
-      for (let x=1; x<=maxAcross; x++) {
-        var cellKey = Util.cellKey(y,x);
-        console.log('cell->toObject .... cellKey : ['+cellKey+']');
-        var cell = cellMap.get(cellKey);
-        if (cell != null) {
-          let val = cell.value;
-          if (val != null && val.length > 0) {
-            cellValues[cellKey] = val;
-            console.log('............ cell->toObject : ['+cellKey+'] : ['+val+']');
-          }        
-        }
-      }
-    }
-    return cellValues;
-  }
+  //   return cword;
+  // }
 
-  saveInUpdate() {
-    console.log('Game : saveInUpdate : enter');
+  // saveCwObject() {
+  //   // read from cword object, write to state
+  // }
 
-    // save the crossword
-    let cwObj = this.makeCwObject();
+  // getBlanks() {
+  //   let size = this.state.size;
+  //   let maxAcross = Util.maxAcross(size);
+  //   let maxDown = Util.maxAcross(size);
+  //   let cellMap = this.state.cellMap;
+  //   let blanks = '';
+  //   let lines = '';
+  //   for (let y=1; y<=maxDown; y++) {
+  //     let line = '';
+  //     for (let x=1; x<=maxAcross; x++) {
+  //       let cellKey = Util.cellKey(y, x);
+  //       if (!cellMap.has(cellKey)) {
+  //         if (line === '') {
+  //           line = ''+x;
+  //         } else {
+  //           line += ','+x;
+  //         }
+  //       }
+  //     }
+  //     if (line.length > 0) {
+  //       line = y+' '+line;
+  //       lines += line+';';
+  //     }
+  //   }
+  //   lines = lines.trim();
+  //   blanks = lines;
+  //   return blanks;
+  // }
+
+  // getCellValues() {
+  //   let size = this.state.size;
+  //   let maxAcross = Util.maxAcross(size);
+  //   let maxDown = Util.maxAcross(size);
+  //   let cellMap = this.state.cellMap;
+
+  //   let cellValues = {};
+  //   for (let y=1; y<=maxDown; y++) {
+  //     for (let x=1; x<=maxAcross; x++) {
+  //       var cellKey = Util.cellKey(y,x);
+  //       console.log('cell->toObject .... cellKey : ['+cellKey+']');
+  //       var cell = cellMap.get(cellKey);
+  //       if (cell != null) {
+  //         let val = cell.value;
+  //         if (val != null && val.length > 0) {
+  //           cellValues[cellKey] = val;
+  //           console.log('............ cell->toObject : ['+cellKey+'] : ['+val+']');
+  //         }        
+  //       }
+  //     }
+  //   }
+  //   return cellValues;
+  // }
+
+  // storeInUpdate() {
+  //   console.log('Game : saveInUpdate : enter');
+
+  //   // let cwObj = this.makeCwObject();
+  //   let cwObj = this.state.cword;
   
-    this.saveCwordObject(cwObj);
+  //   this.storeSave(cwObj);
 
-  }
+  // }
 
-  saveCwordObject(cwObj) {
-    console.log('Game : saveCwordObject : enter');
+  // saveCwordObject(cwObj) {
+  //   console.log('Game : saveCwordObject : enter');
 
-    let maxAcross = cwObj.maxAcross;
-    let maxDown = cwObj.maxDown;
-    let size = Util.size(maxAcross, maxDown);
+    // let maxAcross = cwObj.maxAcross;
+    //let maxDown = cwObj.maxDown;
+    //let size = Util.size(maxAcross, maxDown);
 
-    let blanks = cwObj.blanks;
-    let cellValues = cwObj.cellValues;
-    let cellMap = this.setupCellMap(maxAcross, maxDown, blanks, cellValues);
+    //let blanks = cwObj.blanks;
+    //let cellValues = cwObj.cellValues;
+    // let cellMap = this.setupCellMap(maxAcross, maxDown, blanks, cellValues);
 
-    let horizClues = cwObj.horizClues;
-    let vertClues = cwObj.vertClues;
+    // let horizClues = cwObj.horizClues;
+    // let vertClues = cwObj.vertClues;
 
-    this.setState(
-      { size: size, cellMap: cellMap, horizClues: horizClues, vertClues: vertClues}
-    );
+    //this.setState(
+    //  { size: size, cellMap: cellMap, horizClues: horizClues, vertClues: vertClues}
+    // );
   
-    this.storeSave(cwObj);
+    // this.storeSave(cwObj);
 
-  }
+  // }
 
-  setupCellMap(maxAcross, maxDown, blanks, cellValues) {
-    console.log('Game : setupCellMap : enter');
-    let cellMap = new Map();
+  // setupCellMap(maxAcross, maxDown, blanks, cellValues) {
+  //   console.log('Game : setupCellMap : enter');
+  //   let cellMap = new Map();
 
-    // blank cells 
-    let blankMap = this.setupBlankMap(maxAcross, maxDown, blanks);
+  //   // blank cells 
+  //   let blankMap = this.setupBlankMap(maxAcross, maxDown, blanks);
 
-    // values
-    let valueMap = this.setupValueMap(maxAcross, maxDown, cellValues);
+  //   // values
+  //   let valueMap = this.setupValueMap(maxAcross, maxDown, cellValues);
 
-    // setup cells
-    for (let y=1; y<=maxDown; y++) {
-      for (let x=1; x<=maxAcross; x++) {
-        let cellKey = Util.cellKey(y,x);
-        if (!blankMap.has(cellKey)) {  
-          let cell = new Cell(y,x);
-          cellMap.set(cellKey, cell);
-          console.log('Setup cell at '+cellKey);
-          if (valueMap.has(cellKey)) {
-            let val = valueMap.get(cellKey);
-            cell.value = val;
-            console.log('........ cell value to '+val+' at '+cellKey);
-          }
-        }
-      }
-    }
+  //   // setup cells
+  //   for (let y=1; y<=maxDown; y++) {
+  //     for (let x=1; x<=maxAcross; x++) {
+  //       let cellKey = Util.cellKey(y,x);
+  //       if (!blankMap.has(cellKey)) {  
+  //         let cell = new Cell(y,x);
+  //         cellMap.set(cellKey, cell);
+  //         console.log('Setup cell at '+cellKey);
+  //         if (valueMap.has(cellKey)) {
+  //           let val = valueMap.get(cellKey);
+  //           cell.value = val;
+  //           console.log('........ cell value to '+val+' at '+cellKey);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    console.log("cells : "+JSON.stringify(Util.mapToObject(cellMap)));
+  //   console.log("cells : "+JSON.stringify(Util.mapToObject(cellMap)));
 
-    return cellMap;
-  }
+  //   return cellMap;
+  // }
 
-  setupValueMap(maxAcross, maxDown,cellValues) {
-    let valueMap = new Map();
-    for (let y=1; y<=maxDown; y++) {
-      for (let x=1; x<=maxAcross; x++) {
-        var cellKey = y+'.'+x;
-        var val = cellValues[cellKey];
-        if (val != null && val.length > 0) {
-          if (!valueMap.has(cellKey)) {
-            valueMap.set(cellKey, val);
-            console.log('............ cell->toMap : ['+cellKey+'] : ['+val+']');
-          } 
-        }
-      }
-    }
+  // setupValueMap(maxAcross, maxDown,cellValues) {
+  //   let valueMap = new Map();
+  //   for (let y=1; y<=maxDown; y++) {
+  //     for (let x=1; x<=maxAcross; x++) {
+  //       var cellKey = y+'.'+x;
+  //       var val = cellValues[cellKey];
+  //       if (val != null && val.length > 0) {
+  //         if (!valueMap.has(cellKey)) {
+  //           valueMap.set(cellKey, val);
+  //           console.log('............ cell->toMap : ['+cellKey+'] : ['+val+']');
+  //         } 
+  //       }
+  //     }
+  //   }
 
-    console.log("values : "+JSON.stringify(Util.mapToObject(valueMap)));
-    return valueMap;
-  }
+  //   console.log("values : "+JSON.stringify(Util.mapToObject(valueMap)));
+  //   return valueMap;
+  // }
 
-  setupBlankMap(maxAcross, maxDown,blanks) {
-    let blankMap = new Map();
+  // setupBlankMap(maxAcross, maxDown,blanks) {
+  //   let blankMap = new Map();
   
-    // setup blanks
-    let blankLines = blanks.split(';');
-    for (let i = 0; i < blankLines.length; i++) {
-      let line = blankLines[i]; 
-      line = line.trim();
-      if (line.length === 0) {
-        continue;
-      }
-      console.log('BlankLine#'+(i+1)+' ['+line+']');
-      let lineParts = line.split(' ');
-      if (lineParts.length !== 2) {
-        console.log("Bad # parts, need 2, but have : "+lineParts.length);
-        this.msgMgr.addWarning('Bad # parts, need 2, but have : '+lineParts.length);
-      }
-      let yVal = lineParts[0];
-      if (yVal < 1) {
-        this.msgMgr.addWarning('getBlankMap : y is < 1 : '+yVal);
-      }
-      if (yVal > maxDown) {
-        this.msgMgr.addWarning('getBlankMap : y is > maxDown : '+yVal);
-      }
-      let xVals = lineParts[1];
-      let xParts = xVals.split(',');
-      for (let j = 0; j < xParts.length; j++) {
-        let xVal = xParts[j];
-        if (xVal < 1) {
-          this.msgMgr.addWarning('getBlankMap : x is < 1 : '+xVal);
-        }
-        if (xVal > maxAcross) {
-          this.msgMgr.addWarning('getBlankMap : x is > maxAcross : '+xVal);
-        }
-        let key = Util.cellKey(yVal,xVal);
+  //   // setup blanks
+  //   let blankLines = blanks.split(';');
+  //   for (let i = 0; i < blankLines.length; i++) {
+  //     let line = blankLines[i]; 
+  //     line = line.trim();
+  //     if (line.length === 0) {
+  //       continue;
+  //     }
+  //     console.log('BlankLine#'+(i+1)+' ['+line+']');
+  //     let lineParts = line.split(' ');
+  //     if (lineParts.length !== 2) {
+  //       console.log("Bad # parts, need 2, but have : "+lineParts.length);
+  //       this.msgMgr.addWarning('Bad # parts, need 2, but have : '+lineParts.length);
+  //     }
+  //     let yVal = lineParts[0];
+  //     if (yVal < 1) {
+  //       this.msgMgr.addWarning('getBlankMap : y is < 1 : '+yVal);
+  //     }
+  //     if (yVal > maxDown) {
+  //       this.msgMgr.addWarning('getBlankMap : y is > maxDown : '+yVal);
+  //     }
+  //     let xVals = lineParts[1];
+  //     let xParts = xVals.split(',');
+  //     for (let j = 0; j < xParts.length; j++) {
+  //       let xVal = xParts[j];
+  //       if (xVal < 1) {
+  //         this.msgMgr.addWarning('getBlankMap : x is < 1 : '+xVal);
+  //       }
+  //       if (xVal > maxAcross) {
+  //         this.msgMgr.addWarning('getBlankMap : x is > maxAcross : '+xVal);
+  //       }
+  //       let key = Util.cellKey(yVal,xVal);
 
-        blankMap.set(key, key);
-        console.log('Setup blank at '+key);
-      }
-    }
+  //       blankMap.set(key, key);
+  //       console.log('Setup blank at '+key);
+  //     }
+  //   }
 
-    console.log("blanks : "+JSON.stringify(Util.mapToObject(blankMap)));
+  //   console.log("blanks : "+JSON.stringify(Util.mapToObject(blankMap)));
 
-    return blankMap;
-  }
+  //   return blankMap;
+  // }
 
 //   // initialize cell map
 //   initCellMap() {
