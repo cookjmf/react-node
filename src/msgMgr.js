@@ -5,9 +5,11 @@ class MsgMgr {
     this.clear();
   }
 
-  addError(text) {
+  addError(text, text2) {
     console.log("added ERROR : "+text);
-    this.errors.push(new Msg('E', text));
+    let msg = new Msg('E', text);
+    msg.detail = text2;
+    this.errors.push(msg);
   }
 
   addWarn(text) {
@@ -18,6 +20,13 @@ class MsgMgr {
   addInfo(text) {
     console.log("added INFO : "+text);
     this.infos.push(new Msg('I', text));
+  }
+
+  addConfirmInfo(text, confirmText) {
+    console.log("added CINFO : "+text);
+    let msg = new Msg('I', text);
+    msg.confirmText = confirmText;
+    this.infos.push(msg);
   }
 
   empty() {
