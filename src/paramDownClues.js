@@ -50,7 +50,6 @@ class ParamDownClues extends React.Component {
       </>
     );
   }
-
 }
 
 export default ParamDownClues;

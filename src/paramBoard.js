@@ -24,7 +24,6 @@ class ParamBoard extends React.Component {
 
     let numberedMaxAcross = Util.numberedMaxAcross(size);
     let numberedMaxDown = Util.numberedMaxDown(size);
-;
 
     let boardArray = [];
     for (let y=1; y<=numberedMaxAcross; y++) {

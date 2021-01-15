@@ -10,7 +10,7 @@ import MsgMgr from './msgMgr';
 import * as Util from './util';
 // import Msg from './msg';
 
-// version 210114_1441
+// version 210115_0821
 
 class Game extends React.Component {
   constructor(props) {   
@@ -26,6 +26,7 @@ class Game extends React.Component {
     this.onChangeSize = this.onChangeSize.bind(this);
     // message
     this.onClickMessageClose = this.onClickMessageClose.bind(this);
+    this.onClickMessageConfirm = this.onClickMessageConfirm.bind(this);
     // param
     this.onClickParamCell = this.onClickParamCell.bind(this);
     this.onKeyUpParamAcrossTextarea = this.onKeyUpParamAcrossTextarea.bind(this);
@@ -171,6 +172,7 @@ class Game extends React.Component {
 
       }
     } else if (action === Util.ACTION_DELETE) {
+
       this.storeGetNames();
 
     } else {
@@ -178,9 +180,9 @@ class Game extends React.Component {
     }
   }
 
-  onClickMessageConfirm() {
+  onClickMessageConfirm(value) {
     console.log('Game : START : -------------------------------------------->');
-    console.log('Game : START : onClickMessageConfirm ------------------------>');
+    console.log('Game : START : onClickMessageConfirm -----> '+value+'------------------->');
     console.log('Game : START : -------------------------------------------->');  
 
   }
@@ -417,7 +419,7 @@ class Game extends React.Component {
 
   // result methods, called:
   // - after store methods 
-  // - after build grid/clues methods
+  // - ??? after build grid/clues methods ???
   // - set the updateTimestamp here, which forces re-render
   // CAN CHANGE STATE  
 
@@ -429,7 +431,7 @@ class Game extends React.Component {
 
     let msg = this.msgMgr.getMsg();
     this.setState( { existingNames: names, 
-      name: '', action: '', size: '',
+      cword: null, action: '', 
       msg: msg , updateTimestamp: Util.newDate()} );
 
   }
@@ -598,7 +600,7 @@ class Game extends React.Component {
         /> 
         <Message         
           msg={ this.state.msg }
-          onClick={ this.onClickMessageClose }
+          onClickMessageClose={ this.onClickMessageClose }
         />       
       </div>
     );
@@ -627,7 +629,7 @@ class Game extends React.Component {
         /> 
         <Message         
           msg={ this.state.msg }
-          onClick={ this.onClickMessageClose }
+          onClickMessageClose={ this.onClickMessageClose }
         />       
       </div>
     );
@@ -640,7 +642,7 @@ class Game extends React.Component {
       <div className="game"> 
         <Message         
           msg={ this.state.msg }
-          onClick={ this.onClickMessageClose }
+          onClickMessageClose={ this.onClickMessageClose }
         />
       </div>
     );
@@ -703,7 +705,7 @@ class Game extends React.Component {
         />   
         <Message         
           msg={ this.state.msg }
-          onClick={ this.onClickMessageClose }
+          onClickMessageClose={ this.onClickMessageClose }
         />    
       </div>
     );
@@ -724,7 +726,7 @@ class Game extends React.Component {
         /> 
         <Message         
           msg={ this.state.msg }
-          onClick={ this.onClickMessageClose }
+          onClickMessageClose={ this.onClickMessageClose }
         />   
       </div>
     );
@@ -735,20 +737,24 @@ class Game extends React.Component {
     console.log('Game : renderDeleteMessage : enter');
     console.log('Game : renderDeleteMessage : state : '+JSON.stringify(this.state));
 
-    let cword = this.state.cword;
+    let name = '';
+    if (this.state.cword != null) {
+      name = this.state.cword.name;
+    }
 
     return (
       <div className="game"> 
         <Init 
           action={ this.state.action}
           selectedAction={Util.ACTION_TITLE}
-          name={ cword.name}
+          name={ name}
           existingNames={ this.state.existingNames }
           onChangeName={ this.onChangeName }
+          onChangeAction={ this.onChangeAction }
         /> 
         <Message         
           msg={ this.state.msg }
-          onClick={ this.onClickMessageClose }
+          onClickMessageClose={ this.onClickMessageClose }
         />   
       </div>
     );

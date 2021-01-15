@@ -13,15 +13,22 @@
 */
 class Clue {
   constructor(y, x, isAcross, clueNumber, answer, text, n) {
-    this.x = x;
     this.y = y;
+    this.x = x;
     this.isAcross = isAcross;
     this.clueNumber = clueNumber;
     this.answer = answer;
     this.text = text;
     this.n = n;
     this.firstCell = null;
-    this.answerLen = 0;
+  }
+
+  getAnswerLen() {
+    let len = 0;
+    if (this.answer != null) {
+      len = this.answer.length;
+    }
+    return len;
   }
 }
 

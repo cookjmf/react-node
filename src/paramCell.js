@@ -63,13 +63,9 @@ class ParamCell extends React.Component {
 
   renderCell(boardArrayKey, pMaxAcross, pMaxDown, cellMap, onClick) {
     console.log('ParamCell : renderCell : enter : boardArrayKey : '+boardArrayKey);
-    // let parts = boardArrayKey.split('.');
-    // let partY = parts[0];
-    // let partX = parts[1];
     let y = Util.row(boardArrayKey);
     let x = Util.column(boardArrayKey);
     let id = 'na-'+Util.cellKey(y,x);
-    // let id = 'na-'+Util.toCellId(y, x);
     let clsNum = 'cw-number-item';
     let clsParam = 'cw-param-item';
 
@@ -87,8 +83,7 @@ class ParamCell extends React.Component {
       }
     } else {
       let xVal = x-1;
-      let yVal = y-1;
-      // id = Util.toCellId(yVal, xVal);  
+      let yVal = y-1; 
       let cellKey = Util.cellKey(yVal,xVal);
       id = cellKey;
       let val = '';
