@@ -1,11 +1,11 @@
 import React from 'react';
 
-class ParamAcrossClues extends React.Component {
+class PlayAcrossClues extends React.Component {
 
   constructor(props) {
     
     super(props);
-    console.log('ParamAcrossClues : constructor : enter');
+    console.log('PlayAcrossClues : constructor : enter');
     this.state = {};
   }
 
@@ -14,7 +14,7 @@ class ParamAcrossClues extends React.Component {
   }
   
   render() {
-    console.log('ParamAcrossClues : render : enter');
+    console.log('PlayAcrossClues : render : enter');
 
     let cword = this.props.cword;
 
@@ -55,4 +55,4 @@ class ParamAcrossClues extends React.Component {
 
 }
 
-export default ParamAcrossClues;
+export default PlayAcrossClues;

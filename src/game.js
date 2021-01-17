@@ -88,11 +88,27 @@ class Game extends React.Component {
         }
       }
 
-      this.setState({ action: newAction, existingNames: names, updateTimestamp: Util.newDate() }); 
+      this.setState({ action: newAction, cword: null,
+        existingNames: names, 
+        updateTimestamp: Util.newDate() }); 
+    } else if (newAction === Util.ACTION_PLAY) {
+      let cword = this.state.cword;
+      let msg = cword.buildForPlay();
+
+      this.setState( { 
+        msg: msg, 
+        cword: cword,
+        updateTimestamp: Util.newDate() 
+      });
+
+    } else if (newAction === Util.ACTION_CLEAR) {
+
+      this.storeGetNames();
 
     } else {
 
-      this.setState({ action: newAction, updateTimestamp: Util.newDate() }); 
+      this.setState({ action: newAction, cword: null,
+        updateTimestamp: Util.newDate() }); 
     }   
   }
   
@@ -235,10 +251,23 @@ class Game extends React.Component {
           updateTimestamp: Util.newDate() } 
           );  
       } else {
-
-        this.storeGetNames();
+        let msg = cword.validate();
+        if (msg != null) {
+          this.setState( { 
+            selectedAction: Util.ACTION_TITLE, 
+            selectedSize: Util.SIZE_TITLE, 
+            msg: null, 
+            updateTimestamp: Util.newDate() } 
+            );  
+        } else {
+          this.storeGetNames();
+        }
 
       }
+    } else if (action === Util.ACTION_CREATE_EXAMPLE) {
+
+      this.storeGetNames();
+
     } else if (action === Util.ACTION_DELETE) {
 
       this.storeGetNames();
@@ -759,13 +788,6 @@ class Game extends React.Component {
     console.log('Game : renderSetupNew : state : '+JSON.stringify(this.state));
 
     let cword = this.state.cword;
-    let cells = {};
-    let cellMap = cword.cellMap;
-    if (cellMap != null && cellMap.size > 0) {
-      cells = Util.mapToObject(cellMap);
-    }
-
-    console.log('Game : renderSetupNew : cells : '+JSON.stringify(cells));
 
     return (
       <div className="game"> 
@@ -782,11 +804,7 @@ class Game extends React.Component {
           onClickMessageConfirm={ this.onClickMessageConfirm }
         /> 
         <Param
-          name={ cword.name}
-          size={ cword.size}
-          cells={ cells }
-          horizClues={ cword.horizClues }
-          vertClues={ cword.vertClues }
+          cword={ cword}
           onClickParamCell={ this.onClickParamCell }
           onKeyUpParamAcrossTextarea={ this.onKeyUpParamAcrossTextarea }
           onKeyUpParamDownTextarea={ this.onKeyUpParamDownTextarea }
@@ -795,26 +813,36 @@ class Game extends React.Component {
     );
   }
 
-  // renderSetupNewExample() {
-  //   // chose create, entered example name, chose size
-  //   console.log('Game : renderSetupNewExample : enter');
-  //   console.log('Game : renderSetupNewExample : state : '+JSON.stringify(this.state));
+  renderPlay() {
+    // chose play
+    console.log('Game : renderPlay : enter');
+    console.log('Game : renderPlay : state : '+JSON.stringify(this.state));
 
-  //   return (
-  //     <div className="game">   
-  //       <Init 
-  //         action=''
-  //         selectedAction={ Util.ACTION_TITLE }
-  //         existingNames={ this.state.existingNames }
-  //         onChangeAction={ this.onChangeAction }
-  //       />   
-  //       <Message         
-  //         msg={ this.state.msg }
-  //         onClickMessageClose={ this.onClickMessageClose }
-  //       />    
-  //     </div>
-  //   );
-  // }
+    let cword = this.state.cword;
+
+    return (
+      <div className="game"> 
+        <Init 
+          action=''
+          selectedAction={ Util.ACTION_TITLE }
+          selectedSize={ cword.size }
+          existingNames={ this.state.existingNames }
+          onChangeAction={ this.onChangeAction }
+        />
+        <Message         
+          msg={ this.state.msg }
+          onClickMessageClose={ this.onClickMessageClose }
+          onClickMessageConfirm={ this.onClickMessageConfirm }
+        /> 
+        <Play
+          cword={ cword }
+          onClickPlayCell={ this.onClickPlayCell }
+          onClickPlayAcrossClue={ this.onClickPlayAcrossClue }
+          onClickPlayDownClue={ this.onClickPlayDownClue }
+        />
+      </div>
+    );
+  }
 
   renderDelete() {
     // chose delete
@@ -898,10 +926,6 @@ class Game extends React.Component {
         // name + size to be chosen
         return this.renderCreate();
       } else {
-        // if (Util.isExample(name)) {
-        //   // example name has been chosen, cword saved, show message
-        //   return this.renderSetupNewExample();
-        // } else {
         if (size === '') {
           // name has been chosen, size to be chosen
           return this.renderCreateWithName();
@@ -918,8 +942,8 @@ class Game extends React.Component {
       } else {
         return this.renderSetupNew();
       }
-    // } else if (this.state.action === Util.ACTION_PLAY) {
-
+    } else if (this.state.action === Util.ACTION_PLAY) {
+      return this.renderPlay();
     // } else if (this.state.action === Util.ACTION_UPDATE) {
 
     // } else if (this.state.action === Util.ACTION_EXPORT) {

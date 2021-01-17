@@ -1,22 +1,22 @@
 import React from 'react';
-import ParamCell from './paramCell';
+import PlayCell from './playCell';
 import * as Util from './util';
 
-class ParamBoard extends React.Component {
+class PlayBoard extends React.Component {
 
   constructor(props) {
     
     super(props);
-    console.log('ParamBoard : constructor : enter');
+    console.log('PlayBoard : constructor : enter');
     this.state = {};
   }
 
   componentDidMount() {
-    console.log('ParamBoard : componentDidMount : enter');
+    console.log('PlayBoard : componentDidMount : enter');
   }
 
   render() {
-    console.log('ParamBoard : render : enter');
+    console.log('PlayBoard : render : enter');
 
     let cword = this.props.cword;
 
@@ -36,15 +36,15 @@ class ParamBoard extends React.Component {
       <>
       { boardArray.map( 
         (boardArrayKey, index) => { 
-          console.log("create paramCell for boardArrayKey : ..."+boardArrayKey+"... index : "+index);
+          console.log("create playCell for boardArrayKey : ..."+boardArrayKey+"... index : "+index);
           return(
-            <ParamCell 
+            <PlayCell 
               key={boardArrayKey}
               boardArrayKey={boardArrayKey}
               numberedMaxAcross={numberedMaxAcross}
               numberedMaxDown={numberedMaxDown}
               cword={cword}
-              onClick={ this.props.onClickParamCell }
+              onClick={ this.props.onClickPlayCell }
             />
           );
         } 
@@ -54,4 +54,4 @@ class ParamBoard extends React.Component {
   }
 }
 
-export default ParamBoard;
+export default PlayBoard;

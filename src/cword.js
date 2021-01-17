@@ -15,6 +15,9 @@ class Cword {
     // message manager
     this.msgMgr = new MsgMgr();
 
+    // clueMap (derived)
+    this.clueMap = null;
+
   }
 
   init(size) {
@@ -229,6 +232,8 @@ class Cword {
   // new stuff
   validate() {
 
+    this.msgMgr.clear();
+
     // build the grid
     this.buildGrid();
   
@@ -253,13 +258,38 @@ class Cword {
   
   }
 
+  buildForPlay() {
+
+    this.msgMgr.clear();
+
+    // build the grid
+    this.buildGrid();
+  
+    // // print grid 
+    // printGrid();
+
+    let msg = this.msgMgr.firstMsg();
+    if (msg != null) {
+
+      msg.prefix = 'Failed Validation.';
+  
+    } 
+
+    return msg;
+  
+  }
+
   buildGrid() {
     // this.initCellMap();
     this.initAcrossClues();
     this.initDownClues();
-    var clueLines = this.setupClueLinesInputFormat();
-    this.validateClueLinesInputFormat(clueLines);
+    
+    this.setupClueMap();
+
     this.setupLabels();
+
+    // data attributes for cells and clues
+    this.setupData();
   }
 
   getClueRegExp() {
@@ -663,8 +693,6 @@ class Cword {
     }
   }
 
-
-
   setupClueLinesInputFormat() {
 
     // target format:
@@ -723,8 +751,10 @@ class Cword {
     
   }
 
-  validateClueLinesInputFormat(clueLines) {
+  setupClueMap() {
           
+    var clueLines = this.setupClueLinesInputFormat();
+
     var n = 0;
   
     // Validate clues
@@ -846,6 +876,8 @@ class Cword {
         this.msgMgr.addWarn("validateClues : Invalid clue line : ["+cl+"]. Format : Y|X|A/D|ClueId|Answer|Clue");
       }
     }
+
+    this.clueMap = clueMap;
   }
 
   setupLabels() {
@@ -910,6 +942,238 @@ class Cword {
         }
       }
     }
+  }
+
+  setupData() {
+    for (var y=1; y<=this.getMaxDown(); y++) {
+      for (var x=1; x<=this.getMaxAcross(); x++) {
+        var cellKey = Util.cellKey(y,x); 
+        var cell = this.cellMap.get(cellKey);
+        if (cell == null) {
+          continue;
+        }
+        setupDataForCell(cell);
+      }
+    }
+  }
+
+  setupDataForCell(cell) {
+    var upId = '';
+    var downId = '';
+    var leftId = '';
+    var rightId = '';
+    var downCell = this.getActiveCellDown(cell, 1);
+    if (downCell != null) {
+      downId = downCell.toId();
+    } 
+    var upCell = this.getActiveCellDown(cell, -1);
+    if (upCell != null) {
+      upId = upCell.toId();
+    } 
+    var rightCell = this.getActiveCellAcross(cell, 1);
+    if (rightCell != null) {
+      rightId = rightCell.toId();
+    } 
+    var leftCell = this.getActiveCellAcross(cell, -1);
+    if (leftCell != null) {
+      leftId = leftCell.toId();
+    } 
+
+    var acrossClue = cell.acrossClue;
+    var acrossLabel = '0';
+    var nextAcrossLabel = '0';
+    var prevAcrossLabel = '0';
+    if (acrossClue != null) {
+      acrossLabel = acrossClue.getLabel();
+      var nextAcrossClue = this.getNextAcrossClue(acrossClue);
+      if (nextAcrossClue != null) {
+        nextAcrossLabel = nextAcrossClue.getLabel();
+      }
+      var prevAcrossClue = this.getPrevAcrossClue(acrossClue);
+      if (prevAcrossClue != null) {
+        prevAcrossLabel = prevAcrossClue.getLabel();
+      }
+    }
+
+    var downClue = cell.downClue;
+    var downLabel = '0';
+    var nextDownLabel = '0';
+    var prevDownLabel = '0';
+    if (downClue != null) {
+      downLabel = downClue.getLabel();
+      var nextDownClue = this.getNextDownClue(downClue);
+      if (nextDownClue != null) {
+        nextDownLabel = nextDownClue.getLabel();
+      }
+      var prevDownClue = this.getPrevDownClue(downClue);
+      if (prevDownClue != null) {
+        prevDownLabel = prevDownClue.getLabel();
+      }
+    }
+
+    this.dataCac = acrossLabel;
+    this.dataNac = nextAcrossLabel;
+    this.dataPac = prevAcrossLabel;
+    this.dataCdo = downLabel;
+    this.dataNdo = nextDownLabel;
+    this.dataPdo = prevDownLabel;
+    this.dataIup = upId;
+    this.dataIdo = downId;
+    this.dataIle = leftId;
+    this.dataIri = rightId; 
+  }
+
+  getActiveCellDown(cell, n) {
+    var maxDown = this.getMaxDown();
+    var cell2 = null;
+    var x = cell.x;
+    var y = cell.y;
+          
+    var numTries = 0;
+    while (true) {
+      numTries++;
+      if (numTries >= maxDown) {
+        break;
+      }
+      var newY = y + n;
+      if (newY < 1) {
+        newY = maxDown;
+      }
+      if (newY > maxDown) {
+        newY = 1;
+      }
+  
+      var newKey = x+'.'+newY;
+              
+      cell2 = this.cellMap.get(newKey);
+      if (cell2 != null) {
+        break;
+      }
+              
+      y = newY;
+              
+    }
+    return cell2;       
+  }
+
+  getActiveCellAcross(cell, n) {
+    var maxAcross = this.getMaxAcross();
+    var cell2 = null;
+    var x = cell.x;
+    var y = cell.y;
+          
+    var numTries = 0;
+    while (true) {
+      numTries++;
+      if (numTries >= maxAcross) {
+        break;
+      }
+      var newX = x + n;
+      if (newX < 1) {
+        newX = maxAcross;
+      }
+      if (newX > maxAcross) {
+        newX = 1;
+      }
+      var newKey = newX+'.'+y;
+              
+      cell2 = this.cellMap.get(newKey);
+      if (cell2 != null) {
+        break;
+      }
+              
+      x = newX;
+              
+    }
+    return cell2;       
+  }
+
+  getNextAcrossClue(clue) {
+    var acrossClues = this.getAcrossClues();
+    for (var i=0; i<acrossClues.length; i++) {
+      var clue2 = acrossClues[i];
+      var label2 = clue2.getLabel();
+      if (label2 == clue.getLabel()) {
+        var nextDisp = i + 1;
+        if (nextDisp >= acrossClues.length) {
+          nextDisp = 0;
+        }
+        return acrossClues[nextDisp];               
+      }
+    }
+    return null;
+  }
+
+  getNextDownClue(clue) {
+    var downClues = this.getDownClues();
+    for (var i=0; i<downClues.length; i++) {
+      var clue2 = downClues[i];
+      var label2 = clue2.getLabel();
+      if (label2 == clue.getLabel()) {
+        var nextDisp = i + 1;
+        if (nextDisp >= downClues.length) {
+          nextDisp = 0;
+        }
+        return downClues[nextDisp];               
+      }
+    }
+    return null;
+  }
+  
+  getPrevAcrossClue(clue) {
+    var acrossClues = this.getAcrossClues();
+    for (var i=0; i<acrossClues.length; i++) {
+      var clue2 = acrossClues[i];
+      var label2 = clue2.getLabel();
+      if (label2 == clue.getLabel()) {
+        var nextDisp = i - 1;
+        if (nextDisp < 0) {
+          nextDisp = acrossClues.length-1;
+        }
+        return acrossClues[nextDisp];               
+      }
+    }
+    return null;
+  }
+
+  getPrevDownClue(clue) {
+    var downClues = this.getDownClues();
+    for (var i=0; i<downClues.length; i++) {
+      var clue2 = downClues[i];
+      var label2 = clue2.getLabel();
+      if (label2 == clue.getLabel()) {
+        var nextDisp = i - 1;
+        if (nextDisp < 0) {
+          nextDisp = downClues.length-1;
+        }
+        return downClues[nextDisp];               
+      }
+    }
+    return null;
+  }
+
+  getAcrossClues() {
+    var list = [];
+    for (let [key, clue] of this.clueMap) {
+      // console.log(key + " = " + value);
+      if (clue.isAcross) {
+        list.push(clue);    
+      }
+    }
+    var blist = list.sort(sortByLabel);
+    return blist;
+  }
+  
+  getDownClues() {
+    var list = [];
+    for (let [key, clue] of this.clueMap) {
+      // console.log(key + " = " + value);
+      if (!clue.isAcross) {
+        list.push(clue);    
+      }
+    }
+    var blist = list.sort(sortByLabel);
+    return blist;
   }
 
 }

@@ -1,25 +1,25 @@
 import React from 'react';
 import * as Util from './util';
 
-class ParamCell extends React.Component {
+class PlayCell extends React.Component {
 
   constructor(props) {
     
     super(props);
-    console.log('ParamCell : constructor : enter');
+    console.log('PlayCell : constructor : enter');
     this.state = {};
   }
 
   componentDidMount() {
-    console.log('ParamCell : componentDidMount : enter');
+    console.log('PlayCell : componentDidMount : enter');
   }
 
   componentDidUpdate() {
-    console.log('ParamCell : componentDidUpdate : enter');
+    console.log('PlayCell : componentDidUpdate : enter');
   }
   
   renderNumber(id, cls, val) {
-    console.log('ParamCell : renderNumber : id : '+id);
+    console.log('PlayCell : renderNumber : id : '+id);
     return (
       <>
         <div id={id} className={cls} name={id} key={id} readOnly>
@@ -29,8 +29,8 @@ class ParamCell extends React.Component {
     );
   }
 
-  renderInput(id, cls, val, onClick) {
-    console.log('ParamCell : renderInput : id : '+id);  
+  renderNormalCell(id, cls, val, onClick) {
+    console.log('PlayCell : renderInput : id : '+id);  
     return (
       <>
         <input id={id} className={cls} name={id} key={id} type='text' 
@@ -42,33 +42,23 @@ class ParamCell extends React.Component {
     );
   }
 
-  renderInputAsBlank(id, cls, onClick) {
-    console.log('ParamCell : renderInputAsBlank : id : '+id);
-  
-    const style1 = {
-      'backgroundColor': 'black'
-    };
+  renderBlankCell(id) {
+    console.log('PlayCell : renderBlankCell : id : '+id);
 
     return (
       <>
-        <input id={id} className={cls} name={id} key={id} type='text' 
-          minLength='0' maxLength='0' value=''
-          style={style1}
-          onClick={(ev) => onClick(ev.target.id)}
-          readOnly>
-        </input>
+        <span id={id} className='cw-blank' name={id} key={id} >
+        </span>
       </>   
     );
   }
 
   renderCell(boardArrayKey, pMaxAcross, pMaxDown, cellMap, onClick) {
-    console.log('ParamCell : renderCell : enter : boardArrayKey : '+boardArrayKey);
+    console.log('PlayCell : renderCell : enter : boardArrayKey : '+boardArrayKey);
     let y = Util.row(boardArrayKey);
     let x = Util.column(boardArrayKey);
-    // let id = 'na-'+Util.cellKey(y,x);
     let id = 'na-'+Util.toCellId(y,x);
     let clsNum = 'cw-number-item';
-    let clsParam = 'cw-param-item';
 
     if (x===1 || x===pMaxAcross) {
       if (y ===1 || y === pMaxDown) {
@@ -86,7 +76,7 @@ class ParamCell extends React.Component {
       let xVal = x-1;
       let yVal = y-1; 
       let cellKey = Util.cellKey(yVal,xVal);
-      id = cellKey;
+      id = Util.toCellId(y, x);
       let val = '';
       let isBlank = true;
 
@@ -96,15 +86,15 @@ class ParamCell extends React.Component {
         val = cell.value;
       }
       if (isBlank) {
-        return this.renderInputAsBlank(id, clsParam, onClick);
+        return this.renderBlankCell(id);
       } else {
-        return this.renderInput(id, clsParam, val, onClick);
+        return this.renderNormalCell(id, val, onClick);
       } 
     }
   }
   
   render() {
-    console.log('ParamCell : render : enter');
+    console.log('PlayCell : render : enter');
 
     // key is "special", even though its been passed in - it does not show in props !!
 
@@ -131,4 +121,4 @@ class ParamCell extends React.Component {
   }
 }
 
-export default ParamCell;
+export default PlayCell;

@@ -57,6 +57,14 @@ class Clue {
   uniqLocation() {
     return this.y+'.'+this.x+'.'+Util.direction(this.isAcross);
   }
+
+  getLabel() {
+    var k = 0;
+    if (this.firstCell != null) {
+      k = this.firstCell.label;           
+    }
+    return k;
+  }
 }
 
 export default Clue;

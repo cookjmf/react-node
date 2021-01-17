@@ -24,11 +24,9 @@ class Param extends React.Component {
   render() {
     console.log('Param : render : enter');
 
-    // console.log('Param : render : props : ...'+JSON.stringify(this.props)+'...');
-
-    // props: name, size
-
-    let size = this.props.size;
+    let cword = this.props.cword;
+    
+    let size = cword.size;
 
     let na = Util.numberedMaxAcross(size);
     let nd = Util.numberedMaxDown(size);
@@ -41,9 +39,8 @@ class Param extends React.Component {
       <div id="cw-params-cont" className="cw-cont">
         <div id="cw-params-board" className={boardClassName}>
           <ParamBoard
-            size={ this.props.size}
+            cword={ cword}
             onClickParamCell={ this.props.onClickParamCell }
-            cells={ this.props.cells }
           >
           </ParamBoard>
           <div id="cw-param-clues" className={cluesClassName}>
@@ -52,14 +49,12 @@ class Param extends React.Component {
               Parse clues using OnlineOCR
             </a>
             <ParamAcrossClues
-              size={this.props.size}
-              horizClues={this.props.horizClues}   
+              cword={ cword} 
               onKeyUp={ this.props.onKeyUpParamAcrossTextarea }
             >         
             </ParamAcrossClues>
             <ParamDownClues
-              size={this.props.size}
-              vertClues={this.props.vertClues}
+              cword={ cword} 
               onKeyUp={ this.props.onKeyUpParamDownTextarea }
             >
             </ParamDownClues>
@@ -67,7 +62,7 @@ class Param extends React.Component {
         </div>
       </div>
     );
-    
+
   }
 
 }

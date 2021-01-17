@@ -1,11 +1,11 @@
 import React from 'react';
 
-class ParamDownClues extends React.Component {
+class PlayDownClues extends React.Component {
 
   constructor(props) {
     
     super(props);
-    console.log('ParamDownClues : constructor : enter');
+    console.log('PlayDownClues : constructor : enter');
     this.state = {};
   }
 
@@ -14,7 +14,7 @@ class ParamDownClues extends React.Component {
   }
   
   render() {
-    console.log('ParamDownClues : render : enter');
+    console.log('PlayDownClues : render : enter');
 
     let cword = this.props.cword;
 
@@ -54,4 +54,4 @@ class ParamDownClues extends React.Component {
   }
 }
 
-export default ParamDownClues;
+export default PlayDownClues;

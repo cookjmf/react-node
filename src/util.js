@@ -163,6 +163,9 @@ export const isValidName = (name) => {
     name.startsWith('--')) {
     return false;
   }
+  if (name !== null && name.startsWith("example_")) {
+    return false;
+  }
   return true;
 }
 
@@ -298,15 +301,15 @@ export const cellKey = (y,x) => {
   return y +'.'+x;
 }
 
-export const row = (id) => {
-  // id = y.x
-  let parts = id.split('.');
+export const row = (cellKey) => {
+  // cellKey = y.x
+  let parts = cellKey.split('.');
   return 1 * parts[0];
 }
 
-export const column = (id) => {
-  // id = y.x
-  let parts = id.split('.');
+export const column = (cellKey) => {
+  // cellKey = y.x
+  let parts = cellKey.split('.');
   return 1 * parts[1];
 }
 
