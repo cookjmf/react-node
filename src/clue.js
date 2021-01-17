@@ -1,3 +1,5 @@
+import * as Util from './util';
+
 /*
   Clue : a crossword clue
   y : row in grid of first letter
@@ -23,12 +25,37 @@ class Clue {
     this.firstCell = null;
   }
 
-  getAnswerLen() {
+  answerLen() {
     let len = 0;
     if (this.answer != null) {
       len = this.answer.length;
     }
     return len;
+  }
+
+  getFirstCellKey() {
+    return Util.cellKey(this.y,this.x); // x+'.'+clue.y;
+  }
+
+  toInputFormat() {
+    // (Y|X|A/D|ClueId|Answer|Clue)
+    var s = this.y+'|'+this.x;
+    s += '|'+Util.direction(this.isAcross).toUpperCase();
+    if (this.isAcross) {
+      s += '|'+this.y;
+    } else {
+      s += '|'+this.x;
+    }
+    s += '.'+this.n+'.'+this.answerLen()+'|';
+    for (var i=0; i<this.answerLen(); i++) {
+      s+='X';
+    }
+    s+='|'+this.text;
+    return s;
+  }
+
+  uniqLocation() {
+    return this.y+'.'+this.x+'.'+Util.direction(this.isAcross);
   }
 }
 

@@ -36,6 +36,7 @@ class Name extends React.Component {
     for (let i=0; i<existingNames.length; i++) {
       names.push(existingNames[i]);
     }
+    names.sort();
 
     for (let i=0; i<names.length; i++) {
       let id = ''+(i+1);

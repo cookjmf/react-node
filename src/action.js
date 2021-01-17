@@ -31,12 +31,12 @@ class Action extends React.Component {
     }
     var actionNames = [];
     if (numNames > 0) {
-      actionNames = [Util.ACTION_TITLE,Util.ACTION_CREATE, Util.ACTION_PLAY, 
-        Util.ACTION_UPDATE, Util.ACTION_EXPORT, Util.ACTION_IMPORT, 
+      actionNames = [Util.ACTION_TITLE,Util.ACTION_CREATE, Util.ACTION_CREATE_EXAMPLE, 
+        Util.ACTION_PLAY, Util.ACTION_UPDATE, Util.ACTION_EXPORT, Util.ACTION_IMPORT, 
         Util.ACTION_DELETE, Util.ACTION_CLEAR];
     } else {
-      actionNames = [Util.ACTION_TITLE,Util.ACTION_CREATE, Util.ACTION_IMPORT, 
-        Util.ACTION_CLEAR];
+      actionNames = [Util.ACTION_TITLE,Util.ACTION_CREATE, Util.ACTION_CREATE_EXAMPLE, 
+        Util.ACTION_IMPORT, Util.ACTION_CLEAR];
     }
 
     const options = [];

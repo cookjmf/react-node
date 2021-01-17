@@ -3,6 +3,7 @@
 // Action
 export const ACTION_TITLE = '--Choose action--';
 export const ACTION_CREATE = 'create';
+export const ACTION_CREATE_EXAMPLE = 'createExample';
 export const ACTION_UPDATE = 'update';
 export const ACTION_PLAY = 'play';
 export const ACTION_IMPORT = 'import';
@@ -23,18 +24,18 @@ export const SIZES_ALLOWED = [ '7', '15', '20' ];
 // Examples
 
 // 7 by 7 small data
-export const EXAMPLE_7A = 'example7A';
-export const CWORD_7A = {"name": EXAMPLE_7A, "maxAcross": 7, "maxDown": 7};
-CWORD_7A.blanks = '1 4;2 2;3 4;4 1,3;5 6;6 5';       
-CWORD_7A.horizClues = '1. Father. Single. 2. Finger. 3. Deity! Sprite. 4. Music. 5. Displays. 6. Iema? Ti. 7. Transon.';
-CWORD_7A.vertClues = '1. Canine. Repose. 2. Alternate. 3. Performed. Oma. 4. Bird. 5. Smelly. 6. Nemu. Towards. 7. Teach.'; 
+export const EXAMPLE_A7 = 'example_A7';
+export const CWORD_A7 = {"name": EXAMPLE_A7, "maxAcross": 7, "maxDown": 7};
+CWORD_A7.blanks = '1 4;2 2;3 4;4 1,3;5 6;6 5';       
+CWORD_A7.horizClues = '1. Father. Single. 2. Finger. 3. Deity! Sprite. 4. Music. 5. Displays. 6. Iema? Ti. 7. Transon.';
+CWORD_A7.vertClues = '1. Canine. Repose. 2. Alternate. 3. Performed. Oma. 4. Bird. 5. Smelly. 6. Nemu. Towards. 7. Teach.'; 
 
 // 15 by 15
-export const EXAMPLE_15A = 'example15A';
-export const CWORD_15A = {"name":EXAMPLE_15A,"maxAcross":15,"maxDown":15};
-CWORD_15A.blanks = "2 5,10;3 8,12;4 5,7,11,13;5 6;6 8,10,13,14;7 7,15;8 2,7;9 4,6,13;10 10,12;11 3;12 5,7,9,10,15;"
+export const EXAMPLE_B15 = 'example_B15';
+export const CWORD_B15 = {"name":EXAMPLE_B15,"maxAcross":15,"maxDown":15};
+CWORD_B15.blanks = "2 5,10;3 8,12;4 5,7,11,13;5 6;6 8,10,13,14;7 7,15;8 2,7;9 4,6,13;10 10,12;11 3;12 5,7,9,10,15;"
     + "13 8,11,13;14 7,14;15 1,2;"
-CWORD_15A.horizClues = 
+CWORD_B15.horizClues = 
       "1. Compagnon de route."
     + "2. Fait la tête de cochon. Cours séché. Dans les montagnes russes."
     + "3. État noir. Ne se plaque pas facilement. Pièce meublée."
@@ -50,7 +51,7 @@ CWORD_15A.horizClues =
     + "13. A des trous dans la tête. Possessif. Préposition."
     + "14. Futur vétéran. Morceau de Vivaldi."
     + "15. Bonjour les dégâts."
-CWORD_15A.vertClues = 
+CWORD_B15.vertClues = 
       "1. Très brillant dès le cours élémentaire."
     + "2. Bonne occasion. Jaune plus ou moins."
     + "3. Mirent en boule. A ce qu'il faut pour bien tourner."
@@ -68,11 +69,11 @@ CWORD_15A.vertClues =
     + "15. Tournée. Lit des bouquins. Souvent décourageant."
 
 // 20 by 20 full size
-export const EXAMPLE_20A = 'example20A';
-export const CWORD_20A = {"name": EXAMPLE_20A, "maxAcross": 20, "maxDown": 20};
-CWORD_20A.blanks = "1 8,20;2 6,13;3 5,13;4 14,19;5 9,15;6 5,11,15,18,20;7 2,4,9,12;8 6,8,14;9 1,7,10,13,17,19;10 2,4,10,16;"
+export const EXAMPLE_C20 = 'example_C20';
+export const CWORD_C20 = {"name": EXAMPLE_C20, "maxAcross": 20, "maxDown": 20};
+CWORD_C20.blanks = "1 8,20;2 6,13;3 5,13;4 14,19;5 9,15;6 5,11,15,18,20;7 2,4,9,12;8 6,8,14;9 1,7,10,13,17,19;10 2,4,10,16;"
      + "11 7,19;12 4,9,10,15,19;13 3,13,15,19;14 5,20;15 7,16,17,18;16 8,11,12,19;17 5,12,19;18 1,8,10,17;19 3,4,6,7,14,19;20 8,12;";
-CWORD_20A.horizClues = 
+CWORD_C20.horizClues = 
       "1. On la croit ici mais elle est ailleurs. Occupent des postes de direction dans des compagnies aériennes. "
     + "2. Place à l'envers. Vieux poulets. Tremblait d'émotion. "
     + "3. Pompe papale. Partie en fugue. A pris le voile. "
@@ -94,7 +95,7 @@ CWORD_20A.horizClues =
     + "19. Change presque tous les jours. Ruban à la page. Vieil auteur-compositeur-interprète. "
     + "20. Agglomérations ouvrières. Décoration murale. Étaient bienheureux aux enfers.";
 
-CWORD_20A.vertClues = 
+CWORD_C20.vertClues = 
       "1. Réunion sans intérêt. Fait croquer le marmot. Pronom. "
     + "2. Rote. Petit morceau de sucre. Petites voies d'eau. "
     + "3. Spécialiste du chauffage central et des bouches de chaleur. Les damnés de la terre. "
@@ -117,9 +118,9 @@ CWORD_20A.vertClues =
     + "20. Distributrice d'images. Boîte à couture. Tables de la foi.";
 
 export const EXAMPLE_MAP = new Map();
-EXAMPLE_MAP.set(EXAMPLE_7A, CWORD_7A);
-EXAMPLE_MAP.set(EXAMPLE_15A, CWORD_15A);
-EXAMPLE_MAP.set(EXAMPLE_20A, CWORD_20A);
+EXAMPLE_MAP.set(EXAMPLE_A7, CWORD_A7);
+EXAMPLE_MAP.set(EXAMPLE_B15, CWORD_B15);
+EXAMPLE_MAP.set(EXAMPLE_C20, CWORD_C20);
              
 export const EXAMPLE_CLUES =
       "1. Conseillères de direction. Attaché militaire. \n"
@@ -133,7 +134,6 @@ export const ACROSS_VALUES = [7, 15, 20];
 export const DOWN_VALUES = [7, 15, 20];
 
 export const OCR_ONLINE_URL = 'https://www.onlineocr.net';
-
 
 // ---- functions ----
 

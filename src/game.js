@@ -3,12 +3,10 @@ import Init from './init';
 import Message from './message';
 import Param from './param';
 
-import Cell from './cell';
 import Cword from './cword';
 import MsgMgr from './msgMgr';
 
 import * as Util from './util';
-// import Msg from './msg';
 
 // version 210115_0821
 
@@ -78,8 +76,24 @@ class Game extends React.Component {
     console.log('Game : START : onChangeAction ----> '+newAction+' --------->');
     console.log('Game : START : -------------------------------------------->');
 
-    // set state and updateTimestamp since render needed
-    this.setState({ action: newAction, updateTimestamp: Util.newDate() });    
+    let existingNames = this.state.existingNames;
+
+    if (newAction === Util.ACTION_CREATE_EXAMPLE) {
+      let names = [];
+
+      for (var [key,val] of Util.EXAMPLE_MAP) {
+        console.log(key +'...'+val.length);
+        if (!existingNames.includes(key)) {
+          names.push(key);
+        }
+      }
+
+      this.setState({ action: newAction, existingNames: names, updateTimestamp: Util.newDate() }); 
+
+    } else {
+
+      this.setState({ action: newAction, updateTimestamp: Util.newDate() }); 
+    }   
   }
   
   onChangeName(newName) {
@@ -96,6 +110,17 @@ class Game extends React.Component {
       cword.name = newName;
 
       this.storeDelete(cword);
+    } else if (action === Util.ACTION_CREATE_EXAMPLE) {
+
+      let cwObj = Util.EXAMPLE_MAP.get(newName);
+      if (cwObj != null) {    
+        let cword = new Cword();
+        cword.setupCwordFromStorageObject(cwObj);
+    
+        this.storeSave(cword);
+      } else {
+        console.log("logic error : no example found named : "+newName);
+      }
 
     } else {
       // other actions here
@@ -112,11 +137,21 @@ class Game extends React.Component {
 
     let action = this.state.action;
     if (action === Util.ACTION_CREATE) {
+
       let cword = new Cword();
       cword.name = newName;
       this.setState({ cword: cword }); 
+
       if (Util.isExample(newName)) {
-        this.setupNew(cword);
+
+        // this.setupNew(cword);
+        // this is an error case
+
+        this.msgMgr.addError('Invalid name, reserved for example');
+        this.setState({ 
+          msg : this.msgMgr.msg() , updateTimestamp: Util.newDate()
+        });
+
       } 
     } else {
       console.log("logic error : in onChangeNewName but action is not CREATE");
@@ -135,7 +170,43 @@ class Game extends React.Component {
     let action = this.state.action;
     if (action === Util.ACTION_CREATE) {
 
-      this.setupNew(cword);
+      let name = cword.name;
+
+      let existingNames = this.state.existingNames;
+      
+      if (!Util.isValidName(name)) {
+        this.msgMgr.addError('Invalid name');
+        this.setState({ 
+          msg : this.msgMgr.msg() , updateTimestamp: Util.newDate()
+        });
+  
+      } else if (Util.isDuplicateName(existingNames, name)) {
+        this.msgMgr.addError('Duplicate name');
+        this.setState({ 
+          msg : this.msgMgr.msg() , updateTimestamp: Util.newDate()
+        });
+      } else {
+  
+        let cwObj = Util.EXAMPLE_MAP.get(name);
+        if (cwObj != null) {    
+          console.log('Game : setupNew : example case : not valid here');
+
+          // not valid here
+  
+          // // this is in storage format so convert back to cword format
+          // let cword = new Cword();
+          // cword.setupCwordFromStorageObject(cwObj);
+  
+          // this.storeSave(cword);
+        } else {
+          console.log('Game : setupNew : non example case');
+  
+          // all empty on creation
+  
+          this.storeSave(cword);
+        }
+      }
+    
 
     } else {
       console.log("logic error : in onChangeSize but action is not CREATE");
@@ -164,11 +235,8 @@ class Game extends React.Component {
           updateTimestamp: Util.newDate() } 
           );  
       } else {
-        
-        this.setState( { 
-          msg: null, 
-          updateTimestamp: Util.newDate() 
-        });
+
+        this.storeGetNames();
 
       }
     } else if (action === Util.ACTION_DELETE) {
@@ -180,11 +248,21 @@ class Game extends React.Component {
     }
   }
 
-  onClickMessageConfirm(value) {
+  onClickMessageConfirm(id) {
     console.log('Game : START : -------------------------------------------->');
-    console.log('Game : START : onClickMessageConfirm -----> '+value+'------------------->');
+    console.log('Game : START : onClickMessageConfirm -----> '+id+'------------------->');
     console.log('Game : START : -------------------------------------------->');  
 
+    if (id === 'cw-message-Validate') {
+      let cword = this.state.cword;
+      let msg = cword.validate();
+
+      this.setState( { 
+        msg: msg, 
+        updateTimestamp: Util.newDate() 
+      });
+
+    }
   }
 
   onClickParamCell(id) {
@@ -193,11 +271,10 @@ class Game extends React.Component {
     console.log('Game : START : onClickParamCell ----> '+id+'------------->');
     console.log('Game : START : -------------------------------------------->');  
 
-    let cwObj = this.state.cword;
-    let cellMap = this.toggleParamCell(cwObj, id);
-    cwObj.cellMap = cellMap;
+    let cword = this.state.cword;
+    cword.toggleParamCell(id);
 
-    this.storeSave(cwObj);
+    this.storeSave(cword);
   }
 
   onKeyUpParamAcrossTextarea(value) {
@@ -427,12 +504,16 @@ class Game extends React.Component {
     console.log('Game : resultGetNames : enter');
     if (!ok) {
       this.msgMgr.addError('Failed to get names.');
-    } 
+      let msg = this.msgMgr.msg();
+      this.setState( { existingNames: names, 
+        cword: null, action: '', 
+        msg: msg , updateTimestamp: Util.newDate()} );
 
-    let msg = this.msgMgr.getMsg();
-    this.setState( { existingNames: names, 
-      cword: null, action: '', 
-      msg: msg , updateTimestamp: Util.newDate()} );
+    } else {
+      this.setState( { existingNames: names, 
+        cword: null, action: '', 
+        msg: null , updateTimestamp: Util.newDate()} );
+    }
 
   }
 
@@ -472,7 +553,9 @@ class Game extends React.Component {
     } else if (action === Util.ACTION_PLAY) {
       // resultSavePlay(ok);
     } else if (action === Util.ACTION_CREATE) {
-      this.resultCreateInsert(cwObj, ok);
+      this.resultCreateInsert(cwObj, ok, false);
+    } else if (action === Util.ACTION_CREATE_EXAMPLE) {
+      this.resultCreateInsert(cwObj, ok, true);
     } else if (action === Util.ACTION_UPDATE) {
       // resultSaveUpdate(ok);
     }
@@ -486,25 +569,25 @@ class Game extends React.Component {
     } else {
       this.msgMgr.addConfirmInfo( 'Updated : '+name+' at '+Util.date1(), "Validate" );
     }
-    let msg = this.msgMgr.getMsg();
+    let msg = this.msgMgr.msg();
     this.setState( {
       msg: msg , cword: cwObj, updateTimestamp: Util.newDate()
     } );
   }
 
-  resultCreateInsert(cwObj, ok) {
+  resultCreateInsert(cwObj, ok, isExample) {
     console.log('Game : resultCreateInsert : enter');
     let name = cwObj.name;
     if (!ok) {
       this.msgMgr.addError('Failed to save.');
     } else {
-      if (Util.isExample(this.state.name)) {
+      if (isExample) {
         this.msgMgr.addInfo('Created example : '+name+'.');
       } else {
         this.msgMgr.addInfo('Created : '+name+', now set blanks and clues');       
       } 
     }
-    let msg = this.msgMgr.getMsg();
+    let msg = this.msgMgr.msg();
     this.setState( {
       msg: msg , cword: cwObj, updateTimestamp: Util.newDate()
     } );
@@ -517,7 +600,7 @@ class Game extends React.Component {
     } else {
       // should not happen
     }
-    let msg = this.msgMgr.getMsg();
+    let msg = this.msgMgr.msg();
     this.setState( {
       msg: msg , cword: cwObj, updateTimestamp: Util.newDate()
     } );
@@ -528,7 +611,7 @@ class Game extends React.Component {
     console.log('Game : resultGet : enter');
     if (!ok) {
       this.msgMgr.addError('Failed to get crossword : '+name);
-      let msg = this.msgMgr.getMsg();
+      let msg = this.msgMgr.msg();
       this.setState( {
         msg: msg , updateTimestamp: Util.newDate()
       } );
@@ -574,7 +657,7 @@ class Game extends React.Component {
     } else {
       this.msgMgr.addInfo('Deleted crossword : '+name);
     }
-    let msg = this.msgMgr.getMsg();
+    let msg = this.msgMgr.msg();
     // set state since new render needed
     this.setState( {msg : msg, cword: cword, updateTimestamp: Util.newDate()} );
   }
@@ -597,6 +680,28 @@ class Game extends React.Component {
           onChangeName={ this.onChangeName }
           onChangeNewName={ this.onChangeNewName }
           onChangeSize={ this.onChangeSize }
+        /> 
+        <Message         
+          msg={ this.state.msg }
+          onClickMessageClose={ this.onClickMessageClose }
+        />       
+      </div>
+    );
+  }
+
+  renderCreateExample() {
+    // chose create, show name
+    console.log('Game : renderCreateExample : enter');
+    console.log('Game : renderCreateExample : state : '+JSON.stringify(this.state));
+    return (
+      <div className="game">   
+        <Init 
+          action={ this.state.action}
+          selectedAction={Util.ACTION_CREATE_EXAMPLE}         
+          selectedName={Util.NAME_TITLE}       
+          onChangeAction={ this.onChangeAction }
+          onChangeName={ this.onChangeName }
+          existingNames={ this.state.existingNames }
         /> 
         <Message         
           msg={ this.state.msg }
@@ -690,26 +795,26 @@ class Game extends React.Component {
     );
   }
 
-  renderSetupNewExample() {
-    // chose create, entered example name, chose size
-    console.log('Game : renderSetupNewExample : enter');
-    console.log('Game : renderSetupNewExample : state : '+JSON.stringify(this.state));
+  // renderSetupNewExample() {
+  //   // chose create, entered example name, chose size
+  //   console.log('Game : renderSetupNewExample : enter');
+  //   console.log('Game : renderSetupNewExample : state : '+JSON.stringify(this.state));
 
-    return (
-      <div className="game">   
-        <Init 
-          action=''
-          selectedAction={ Util.ACTION_TITLE }
-          existingNames={ this.state.existingNames }
-          onChangeAction={ this.onChangeAction }
-        />   
-        <Message         
-          msg={ this.state.msg }
-          onClickMessageClose={ this.onClickMessageClose }
-        />    
-      </div>
-    );
-  }
+  //   return (
+  //     <div className="game">   
+  //       <Init 
+  //         action=''
+  //         selectedAction={ Util.ACTION_TITLE }
+  //         existingNames={ this.state.existingNames }
+  //         onChangeAction={ this.onChangeAction }
+  //       />   
+  //       <Message         
+  //         msg={ this.state.msg }
+  //         onClickMessageClose={ this.onClickMessageClose }
+  //       />    
+  //     </div>
+  //   );
+  // }
 
   renderDelete() {
     // chose delete
@@ -723,6 +828,7 @@ class Game extends React.Component {
           selectedAction={Util.ACTION_DELETE}
           existingNames={ this.state.existingNames }
           onChangeName={ this.onChangeName }
+          onChangeAction={ this.onChangeAction }
         /> 
         <Message         
           msg={ this.state.msg }
@@ -792,18 +898,25 @@ class Game extends React.Component {
         // name + size to be chosen
         return this.renderCreate();
       } else {
-        if (Util.isExample(name)) {
-          // example name has been chosen, cword saved, show message
-          return this.renderSetupNewExample();
+        // if (Util.isExample(name)) {
+        //   // example name has been chosen, cword saved, show message
+        //   return this.renderSetupNewExample();
+        // } else {
+        if (size === '') {
+          // name has been chosen, size to be chosen
+          return this.renderCreateWithName();
         } else {
-          if (size === '') {
-            // name has been chosen, size to be chosen
-            return this.renderCreateWithName();
-          } else {
-            // name, size has been chosen, cword saved, show message and params
-            return this.renderSetupNew();
-          }
+          // name, size has been chosen, cword saved, show message and params
+          return this.renderSetupNew();
         }
+        // }
+      }
+    } else if (action === Util.ACTION_CREATE_EXAMPLE) {
+      if (name === '') {
+        // name to be chosen
+        return this.renderCreateExample();
+      } else {
+        return this.renderSetupNew();
       }
     // } else if (this.state.action === Util.ACTION_PLAY) {
 
@@ -833,65 +946,65 @@ class Game extends React.Component {
   //  - return values
   //  - call other methods
 
-  toggleParamCell(cword, id) {
-    console.log('Game : toggleParamCell : enter : id : '+id);
+  // toggleParamCell(cword, id) {
+  //   console.log('Game : toggleParamCell : enter : id : '+id);
 
-    // get the current state of cells
-    let cellMap = cword.cellMap;
+  //   // get the current state of cells
+  //   let cellMap = cword.cellMap;
 
-    // toggle the cell in cellMap : key is y.x
+  //   // toggle the cell in cellMap : key is y.x
 
-    if (!cellMap.has(id)) {
-      // its a blank so make not a blank
-      let y = Util.row(id);
-      let x = Util.column(id);
-      let cell = new Cell(y, x);
-      cellMap.set(id, cell);
-    } else {
-      // its not a blank so make a blank 
-      cellMap.delete(id);
-    }
+  //   if (!cellMap.has(id)) {
+  //     // its a blank so make not a blank
+  //     let y = Util.row(id);
+  //     let x = Util.column(id);
+  //     let cell = new Cell(y, x);
+  //     cellMap.set(id, cell);
+  //   } else {
+  //     // its not a blank so make a blank 
+  //     cellMap.delete(id);
+  //   }
 
-    return cellMap;
-  }
+  //   return cellMap;
+  // }
 
-  setupNew(cword) {
-    console.log('Game : setupNew : enter');
-    let name = cword.name;
+  // setupNew(cword) {
+  //   console.log('Game : setupNew : enter');
+  //   let name = cword.name;
 
-    let existingNames = this.state.existingNames;
+  //   let existingNames = this.state.existingNames;
     
-    if (!Util.isValidName(name)) {
-      this.msgMgr.addError('Invalid name');
-      this.setState({ 
-        msg : this.msgMgr.getMsg() , updateTimestamp: Util.newDate()
-      });
+  //   if (!Util.isValidName(name)) {
+  //     this.msgMgr.addError('Invalid name');
+  //     this.setState({ 
+  //       msg : this.msgMgr.msg() , updateTimestamp: Util.newDate()
+  //     });
 
-    } else if (Util.isDuplicateName(existingNames, name)) {
-      this.msgMgr.addError('Duplicate name');
-      this.setState({ 
-        msg : this.msgMgr.getMsg() , updateTimestamp: Util.newDate()
-      });
-    } else {
+  //   } else if (Util.isDuplicateName(existingNames, name)) {
+  //     this.msgMgr.addError('Duplicate name');
+  //     this.setState({ 
+  //       msg : this.msgMgr.msg() , updateTimestamp: Util.newDate()
+  //     });
+  //   } else {
 
-      let cwObj = Util.EXAMPLE_MAP.get(name);
-      if (cwObj != null) {    
-        console.log('Game : setupNew : example case');
+  //     let cwObj = Util.EXAMPLE_MAP.get(name);
+  //     if (cwObj != null) {    
+  //       console.log('Game : setupNew : example case');
 
-        // this is in storage format so convert back to cword format
-        let cword = new Cword();
-        cword.setupCwordFromStorageObject(cwObj);
+  //       // this is in storage format so convert back to cword format
+  //       let cword = new Cword();
+  //       cword.setupCwordFromStorageObject(cwObj);
 
-        this.storeSave(cword);
-      } else {
-        console.log('Game : setupNew : non example case');
+  //       this.storeSave(cword);
+  //     } else {
+  //       console.log('Game : setupNew : non example case');
 
-        // all empty on creation
+  //       // all empty on creation
 
-        this.storeSave(cword);
-      }
-    }
-  }
+  //       this.storeSave(cword);
+  //     }
+  //   }
+  // }
 }
 
 export default Game;

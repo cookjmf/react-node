@@ -4,6 +4,7 @@ class Msg {
     this.sev = sev;
     this.confirmText = '';
     this.detail = '';
+    this.prefix = '';
     if (sev === 'E') {
       this.cls = 'cw-message-error';
     } else if (sev === 'W') {
@@ -11,6 +12,19 @@ class Msg {
     } else if (sev === 'I') {
       this.cls = 'cw-message-info';
     }
+  }
+
+  fullText() {
+    let fullText = this.text;
+    let p = this.prefix;
+    if (p != null && p.length > 0) {
+      return p+" "+fullText;
+    }
+    let d = this.detail;
+    if (d != null && d.length > 0) {
+      return fullText+" "+d;
+    }
+    return fullText;
   }
 }
 

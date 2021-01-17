@@ -10,30 +10,32 @@ class Message extends React.Component {
     };
   }
 
-  renderWithConfirm(msgText, msgCls, confirmText) {
+  renderWithConfirm(fullText, cls, confirmText) {
     
     const style1 = {
       'textDecoration': 'underline'
     };
 
+    let confid = 'cw-message-'+confirmText;
+
     return (
       <div id="cw-message-cont" className="cw-cont"> 
-        <span className={msgCls} id='cw-message-text'>
-          {msgText}
+        <span className={cls} id='cw-message-text'>
+          {fullText}
         </span>
-        <span className={msgCls} id='cw-message-text'>
+        <span className={cls} id='cw-message-text'>
           |
         </span>
-        <a className={msgCls} id='cw-message-confirm' 
+        <a className={cls} id={confid}
           style={style1} href='#confirmmessage'
-          onClick={() => this.props.onClickMessageConfirm( {confirmText} )}
+          onClick={(ev) => this.props.onClickMessageConfirm(ev.target.id)}
           >
           {confirmText}
         </a>
-        <span className={msgCls} id='cw-message-text'>
+        <span className={cls} id='cw-message-text'>
           |
         </span>
-        <a className={msgCls} id='cw-message-close' 
+        <a className={cls} id='cw-message-close' 
           style={style1} href='#closemessage'
           onClick={() => this.props.onClickMessageClose()}
           >
@@ -44,7 +46,7 @@ class Message extends React.Component {
 
   }
 
-  renderSimple(msgText, msgCls) {
+  renderSimple(fullText, cls) {
     
     const style1 = {
       'textDecoration': 'underline'
@@ -52,13 +54,13 @@ class Message extends React.Component {
 
     return (
       <div id="cw-message-cont" className="cw-cont"> 
-        <span className={msgCls} id='cw-message-text'>
-          {msgText}
+        <span className={cls} id='cw-message-text'>
+          {fullText}
         </span>
-        <span className={msgCls} id='cw-message-text'>
+        <span className={cls} id='cw-message-text'>
           |
         </span>
-        <a className={msgCls} id='cw-message-close' 
+        <a className={cls} id='cw-message-close' 
           style={style1} href='#closemessage'
           onClick={() => this.props.onClickMessageClose()}
           >
@@ -81,16 +83,16 @@ class Message extends React.Component {
       );
     } else {
 
-      let msgText = this.props.msg.text;
-      let msgCls = this.props.msg.cls;
+      let fullText = msg.fullText();
+      let cls = msg.cls;
+      let confirmText = msg.confirmText;
 
-      if (msg.confirmText != null && msg.confirmText.length > 0) {
-        let confirmText = this.props.msg.confirmText;
-        
-        return this.renderWithConfirm(msgText, msgCls, confirmText);
+      if (confirmText != null && confirmText.length > 0) {
+                
+        return this.renderWithConfirm(fullText, cls, confirmText);
         
       } else {
-        return this.renderSimple(msgText, msgCls);
+        return this.renderSimple(fullText, cls);
       }
     }
   }

@@ -37,7 +37,7 @@ class MsgMgr {
     return false;
   }
 
-  getMsg() {
+  msg() {
     // find the most important msg
     if (this.errors.length > 0) {
       return this.errors[this.errors.length-1];
@@ -47,6 +47,18 @@ class MsgMgr {
       return this.infos[this.infos.length-1];
     }
     return null;
+  }
+
+  firstMsg() {
+    // find the most important msg
+    if (this.errors.length > 0) {
+      this.errors = this.errors.reverse();
+    } else if (this.warnings.length > 0) {
+      this.warnings = this.warnings.reverse();
+    } else if (this.infos.length > 0) {
+      this.infos = this.infos.reverse();
+    }
+    return this.msg();
   }
 
   clear() {

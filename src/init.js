@@ -42,6 +42,24 @@ class Init extends React.Component {
     )
   }
 
+  renderCreateExample() {
+    console.log('Init : renderCreateExample : enter');
+
+    return (
+      <div id="cw-init-cont" className="cw-cont"> 
+        <Action   
+          selected= { this.props.selectedAction }  
+          existingNames={ this.props.existingNames}               
+          onChange={ this.props.onChangeAction }
+        />
+        <Name    
+          existingNames={ this.props.existingNames}   
+          onChange={ this.props.onChangeName }
+        />
+      </div>
+    );
+  }
+
   renderDelete() {
     console.log('Init : renderDelete : enter');
 
@@ -86,6 +104,8 @@ class Init extends React.Component {
     
     if (action === Util.ACTION_CREATE) {
       return this.renderCreate();
+    } else if (action === Util.ACTION_CREATE_EXAMPLE) {
+      return this.renderCreateExample();
     } else if (action === Util.ACTION_DELETE) {
       if (name === '') {
         return this.renderDelete();

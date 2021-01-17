@@ -1,4 +1,4 @@
-// import * as Util from './util';
+import * as Util from './util';
 
 /*
   Cell : a square in the crossword grid
@@ -30,9 +30,9 @@ class Cell {
     this.downLabel = 0;
   }
 
-  // toId() {
-  //   return Util.toCellId(this.y, this.x);
-  // }
+  toId() {
+    return Util.toCellId(this.y, this.x);
+  }
 }
 
 export default Cell;
