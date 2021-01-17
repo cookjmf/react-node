@@ -2,6 +2,7 @@ import React from 'react';
 import Init from './init';
 import Message from './message';
 import Param from './param';
+import Play from './play';
 
 import Cword from './cword';
 import MsgMgr from './msgMgr';
@@ -30,6 +31,9 @@ class Game extends React.Component {
     this.onKeyUpParamAcrossTextarea = this.onKeyUpParamAcrossTextarea.bind(this);
     this.onKeyUpParamDownTextarea = this.onKeyUpParamDownTextarea.bind(this);
     // play
+    this.onClickPlayCell = this.onClickPlayCell.bind(this);
+    this.onClickPlayAcrossClues = this.onClickPlayAcrossClues.bind(this);
+    this.onClickPlayDownClues = this.onClickPlayDownClues.bind(this);
 
     // message manager
     this.msgMgr = new MsgMgr();
@@ -91,15 +95,7 @@ class Game extends React.Component {
       this.setState({ action: newAction, cword: null,
         existingNames: names, 
         updateTimestamp: Util.newDate() }); 
-    } else if (newAction === Util.ACTION_PLAY) {
-      let cword = this.state.cword;
-      let msg = cword.buildForPlay();
 
-      this.setState( { 
-        msg: msg, 
-        cword: cword,
-        updateTimestamp: Util.newDate() 
-      });
 
     } else if (newAction === Util.ACTION_CLEAR) {
 
@@ -137,6 +133,9 @@ class Game extends React.Component {
       } else {
         console.log("logic error : no example found named : "+newName);
       }
+    } else if (action === Util.ACTION_PLAY) {
+
+      this.storeGet(newName);
 
     } else {
       // other actions here
@@ -334,6 +333,42 @@ class Game extends React.Component {
 
   }
 
+  onClickPlayCell(id) {
+
+    console.log('Game : START : -------------------------------------------->');
+    console.log('Game : START : onClickPlayCell ----> '+id+'------------->');
+    console.log('Game : START : -------------------------------------------->');  
+
+    // let cword = this.state.cword;
+    // cword.toggleParamCell(id);
+
+    // this.storeSave(cword);
+  }
+
+  onClickPlayAcrossClues(id) {
+
+    console.log('Game : START : -------------------------------------------->');
+    console.log('Game : START : onClickPlayAcrossClues ----> '+id+'------------->');
+    console.log('Game : START : -------------------------------------------->');  
+
+    // let cword = this.state.cword;
+    // cword.toggleParamCell(id);
+
+    // this.storeSave(cword);
+  }
+
+  onClickPlayDownClues(id) {
+
+    console.log('Game : START : -------------------------------------------->');
+    console.log('Game : START : onClickPlayDownClues ----> '+id+'------------->');
+    console.log('Game : START : -------------------------------------------->');  
+
+    // let cword = this.state.cword;
+    // cword.toggleParamCell(id);
+
+    // this.storeSave(cword);
+  }
+
   // store methods
   // DO NOT CHANGE STATE HERE
 
@@ -355,7 +390,9 @@ class Game extends React.Component {
     )
     .catch(
       err => {
-        console.log('Game : storeGet : catch : err : ...'+JSON.stringify(err)+'...');
+        console.log('Game : storeGet : catch : err as json : ...'+JSON.stringify(err)+'...');
+        console.log('Game : storeGet : catch : err as string : ...'+err+'...');
+        console.log('Game : storeGet : catch : err as err : ...'+err.message+'...'+err.stack+'...');
         this.resultGet(null, false, name);
       }
     ) 
@@ -613,7 +650,7 @@ class Game extends React.Component {
       if (isExample) {
         this.msgMgr.addInfo('Created example : '+name+'.');
       } else {
-        this.msgMgr.addInfo('Created : '+name+', now set blanks and clues');       
+        this.msgMgr.addInfo('Created : '+name+', now set blanks and clues');  
       } 
     }
     let msg = this.msgMgr.msg();
@@ -638,6 +675,9 @@ class Game extends React.Component {
   // note: not used yet
   resultGet(cwObj, ok, name) {
     console.log('Game : resultGet : enter');
+
+    let action = this.state.action;
+
     if (!ok) {
       this.msgMgr.addError('Failed to get crossword : '+name);
       let msg = this.msgMgr.msg();
@@ -669,9 +709,15 @@ class Game extends React.Component {
       // this.setState( { name: name, maxAcross: maxAcross, maxDown: maxDown, blanks: blanks,
       // horizClues: horizClues, vertClues: vertClues, cellValues: cellValues} );
 
+      let msg = null;
+      if (action === Util.ACTION_PLAY) {
+        msg = cword.buildForPlay();
+      }
+
       this.setState( { 
         // name: name, size: size, blanks: blanks,
         // horizClues: horizClues, vertClues: vertClues, cellValues: cellValues,
+        msg: msg,
         cword: cword,
         updateTimestamp: Util.newDate()} );
   
@@ -813,7 +859,7 @@ class Game extends React.Component {
     );
   }
 
-  renderPlay() {
+  renderPlayWithName() {
     // chose play
     console.log('Game : renderPlay : enter');
     console.log('Game : renderPlay : state : '+JSON.stringify(this.state));
@@ -825,7 +871,6 @@ class Game extends React.Component {
         <Init 
           action=''
           selectedAction={ Util.ACTION_TITLE }
-          selectedSize={ cword.size }
           existingNames={ this.state.existingNames }
           onChangeAction={ this.onChangeAction }
         />
@@ -840,6 +885,28 @@ class Game extends React.Component {
           onClickPlayAcrossClue={ this.onClickPlayAcrossClue }
           onClickPlayDownClue={ this.onClickPlayDownClue }
         />
+      </div>
+    );
+  }
+
+  renderPlay() {
+    // chose play
+    console.log('Game : renderPlay : enter');
+    console.log('Game : renderPlay : state : '+JSON.stringify(this.state));
+
+    return (
+      <div className="game"> 
+        <Init 
+          action={ this.state.action}
+          selectedAction={Util.ACTION_PLAY}
+          existingNames={ this.state.existingNames }
+          onChangeName={ this.onChangeName }
+          onChangeAction={ this.onChangeAction }
+        /> 
+        <Message         
+          msg={ this.state.msg }
+          onClickMessageClose={ this.onClickMessageClose }
+        />   
       </div>
     );
   }
@@ -866,10 +933,10 @@ class Game extends React.Component {
     );
   }
 
-  renderDeleteMessage() {
-    // chose delete
-    console.log('Game : renderDeleteMessage : enter');
-    console.log('Game : renderDeleteMessage : state : '+JSON.stringify(this.state));
+  renderMessageAfterAction() {
+    // chose delete / createExample
+    console.log('Game : renderMessageAfterAction : enter');
+    console.log('Game : renderMessageAfterAction : state : '+JSON.stringify(this.state));
 
     let name = '';
     if (this.state.cword != null) {
@@ -909,8 +976,8 @@ class Game extends React.Component {
 
   render() {
     
-    console.log('Game : render : enter');
-    console.log('Game : render : state : '+JSON.stringify(this.state));
+    // console.log('Game : render : enter');
+    // console.log('Game : render : state : '+JSON.stringify(this.state));
     let action = this.state.action;
 
     let name = '';
@@ -921,16 +988,27 @@ class Game extends React.Component {
       size = cword.size;
     }
 
+    console.log('Game : START : -------------------------------------------->');
+    console.log('Game : START : render ------------------------------------->');
+    console.log('Game : START : ------- action : '+action+' ------------------------------------->');
+    console.log('Game : START : ------- name : '+name+' ------------------------------------->');
+    console.log('Game : START : ------- size : '+size+' ------------------------------------->');
+    console.log('Game : START : -------------------------------------------->'); 
+
+
     if (action === Util.ACTION_CREATE) {
       if (name === '') {
         // name + size to be chosen
+        console.log('Game : START : ------- CASE : Create/NoName -----> renderCreate'); 
         return this.renderCreate();
       } else {
         if (size === '') {
           // name has been chosen, size to be chosen
+          console.log('Game : START : ------- CASE : Create/Name/NoSize -----> renderCreateWithName'); 
           return this.renderCreateWithName();
         } else {
           // name, size has been chosen, cword saved, show message and params
+          console.log('Game : START : ------- CASE : Create/Name/Size -----> renderSetupNew'); 
           return this.renderSetupNew();
         }
         // }
@@ -938,12 +1016,20 @@ class Game extends React.Component {
     } else if (action === Util.ACTION_CREATE_EXAMPLE) {
       if (name === '') {
         // name to be chosen
+        console.log('Game : START : ------- CASE : CreateExample/NoName -----> renderCreateExample'); 
         return this.renderCreateExample();
       } else {
-        return this.renderSetupNew();
+        console.log('Game : START : ------- CASE : CreateExample/Name -----> renderMessageAfterAction'); 
+        return this.renderMessageAfterAction();
       }
     } else if (this.state.action === Util.ACTION_PLAY) {
-      return this.renderPlay();
+      if (name === '') {
+        console.log('Game : START : ------- CASE : Play/NoName -----> renderPlay');
+        return this.renderPlay();
+      } else {
+        console.log('Game : START : ------- CASE : Play/Name -----> renderPlayWithName');
+        return this.renderPlayWithName();
+      }
     // } else if (this.state.action === Util.ACTION_UPDATE) {
 
     // } else if (this.state.action === Util.ACTION_EXPORT) {
@@ -952,13 +1038,17 @@ class Game extends React.Component {
 
     } else if (action === Util.ACTION_DELETE) {
       if (name === '') {
+        console.log('Game : START : ------- CASE : Delete/NoName -----> renderDelete');
         return this.renderDelete();
       } else {
-        return this.renderDeleteMessage() 
+        console.log('Game : START : ------- CASE : Delete/Name -----> renderMessageAfterAction');
+        return this.renderMessageAfterAction();
       }
     } else if (this.state.action === Util.ACTION_CLEAR) {
+      console.log('Game : START : ------- CASE : Clear -----> renderInit');
       return this.renderInit();   
     } else {
+      console.log('Game : START : ------- CASE : Default -----> renderInit');
       return this.renderInit();        
     }   
     

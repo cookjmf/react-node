@@ -229,7 +229,6 @@ class Cword {
     }
   }
 
-  // new stuff
   validate() {
 
     this.msgMgr.clear();
@@ -480,7 +479,7 @@ class Cword {
   
             var cid = m+'.'+num;
             console.log('down clue: '+cid+' ...['+ct+'] ['+delim+']');
-            var clue = new Clue(i+1, 0, false, cid, '', ct+''+delim, num);
+            var clue = new Clue(0, i+1, false, cid, '', ct+''+delim, num);
             var list = downClueMap.get(m);
             if (list == null) {
               list = [];
@@ -952,7 +951,7 @@ class Cword {
         if (cell == null) {
           continue;
         }
-        setupDataForCell(cell);
+        this.setupDataForCell(cell);
       }
     }
   }
@@ -1093,7 +1092,7 @@ class Cword {
     for (var i=0; i<acrossClues.length; i++) {
       var clue2 = acrossClues[i];
       var label2 = clue2.getLabel();
-      if (label2 == clue.getLabel()) {
+      if (label2 === clue.getLabel()) {
         var nextDisp = i + 1;
         if (nextDisp >= acrossClues.length) {
           nextDisp = 0;
@@ -1109,7 +1108,7 @@ class Cword {
     for (var i=0; i<downClues.length; i++) {
       var clue2 = downClues[i];
       var label2 = clue2.getLabel();
-      if (label2 == clue.getLabel()) {
+      if (label2 === clue.getLabel()) {
         var nextDisp = i + 1;
         if (nextDisp >= downClues.length) {
           nextDisp = 0;
@@ -1125,7 +1124,7 @@ class Cword {
     for (var i=0; i<acrossClues.length; i++) {
       var clue2 = acrossClues[i];
       var label2 = clue2.getLabel();
-      if (label2 == clue.getLabel()) {
+      if (label2 === clue.getLabel()) {
         var nextDisp = i - 1;
         if (nextDisp < 0) {
           nextDisp = acrossClues.length-1;
@@ -1141,7 +1140,7 @@ class Cword {
     for (var i=0; i<downClues.length; i++) {
       var clue2 = downClues[i];
       var label2 = clue2.getLabel();
-      if (label2 == clue.getLabel()) {
+      if (label2 === clue.getLabel()) {
         var nextDisp = i - 1;
         if (nextDisp < 0) {
           nextDisp = downClues.length-1;
@@ -1155,25 +1154,33 @@ class Cword {
   getAcrossClues() {
     var list = [];
     for (let [key, clue] of this.clueMap) {
-      // console.log(key + " = " + value);
+      console.log(key);
       if (clue.isAcross) {
         list.push(clue);    
       }
     }
-    var blist = list.sort(sortByLabel);
+    var blist = list.sort(this.sortCluesByLabel);
     return blist;
   }
   
   getDownClues() {
     var list = [];
     for (let [key, clue] of this.clueMap) {
-      // console.log(key + " = " + value);
+      console.log(key);
       if (!clue.isAcross) {
         list.push(clue);    
       }
     }
-    var blist = list.sort(sortByLabel);
+    var blist = list.sort(this.sortCluesByLabel);
     return blist;
+  }
+
+  sortCluesByLabel(ca, cb) {
+    if (ca.getLabel() > cb.getLabel()) {
+      return 1;
+    } else {
+      return -1;
+    }
   }
 
 }

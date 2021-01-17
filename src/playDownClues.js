@@ -1,4 +1,5 @@
 import React from 'react';
+import PlayDownClue from './playDownClue';
 
 class PlayDownClues extends React.Component {
 
@@ -15,40 +16,35 @@ class PlayDownClues extends React.Component {
   
   render() {
     console.log('PlayDownClues : render : enter');
-
+  
     let cword = this.props.cword;
 
-    let size = cword.size;
-    let suf = size+'by'+size;
-    let taClass="cw-clues-param-text-"+suf;
-
-    let vertClues = "";
-    if (cword.vertClues != null) {
-      vertClues = ''+cword.vertClues;
+    let downClueKeys = [];
+    let downClues = cword.getDownClues();
+    for (let i=0; i<downClues.length; i++) {
+      let clue = downClues[i];
+      let key = clue.uniqLocation();
+      downClueKeys.push(key);
     }
-    let ph = "Enter Down Clues";
-    let text = "";
-    if (vertClues.length > 0) {
-      text = ''+vertClues;
-      ph = "";
-    } 
 
     return (
       <>
-      <div id="cw-clues-list-down" className="cw-clues-list-down">
-        <div id="cw-clues-list-down-title" className="cw-clues-list-title">
-          Down
-        </div>
-        <div >
-          <textarea id="cw-clues-param-down-text" className={taClass}
-          placeholder={ph}
-          onChange={(ev) => this.props.onKeyUp(ev.target.value)}
-          onKeyUp={(ev) => this.props.onKeyUp(ev.target.value)}
-          value={text}
-          >
-          </textarea>
-        </div>
-      </div>
+        { downClueKeys.map( 
+        (downClueKey, index) => { 
+          console.log("create downClue for downClueKey : ..."+downClueKey+"... index : "+index);
+          return(
+            <PlayDownClue
+            key={downClueKey}
+            downClueKey={downClueKey}
+            downClueNum={index}
+            cword={cword}
+            onClick={ this.props.onClickDownClue }
+            >
+            </PlayDownClue>
+          )
+        }
+        )
+      }
       </>
     );
   }

@@ -53,11 +53,19 @@ class Play extends React.Component {
           >
           </PlayBoard>
           <div id="cw-clues" className={cluesClassName}>
-            <PlayAcrossClues
-              cword={ cword} 
-              onClick={ this.props.onClickPlayAcrossClues }
-            >         
-            </PlayAcrossClues>
+
+            <div id="cw-clues-list-across" className="cw-clues-list-across">
+              <div id="cw-clues-list-across-title" className="cw-clues-list-title">
+              Across
+              </div>
+
+              <PlayAcrossClues
+                cword={ cword} 
+                onClick={ this.props.onClickPlayAcrossClues }
+              >         
+              </PlayAcrossClues>
+
+            </div>
             <hr>
             </hr>
             <PlayDownClues

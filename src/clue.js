@@ -4,14 +4,12 @@ import * as Util from './util';
   Clue : a crossword clue
   y : row in grid of first letter
   x : column in grid of first letter
-
   isAcross : true if across , false if down
   clueNumber : number of clue
   answer : the solution for clue
   text : the text of clue
   n : ordinal of clue on row / column 
   firstCell : the Cell of first letter
-  answerLen : length of answer
 */
 class Clue {
   constructor(y, x, isAcross, clueNumber, answer, text, n) {
@@ -25,20 +23,17 @@ class Clue {
     this.firstCell = null;
   }
 
-  answerLen() {
-    let len = 0;
-    if (this.answer != null) {
-      len = this.answer.length;
-    }
-    return len;
-  }
-
   getFirstCellKey() {
     return Util.cellKey(this.y,this.x); // x+'.'+clue.y;
   }
 
   toInputFormat() {
     // (Y|X|A/D|ClueId|Answer|Clue)
+    let len = 0;
+    if (this.answer !== null) {
+      len = this.answer.length;
+    }
+
     var s = this.y+'|'+this.x;
     s += '|'+Util.direction(this.isAcross).toUpperCase();
     if (this.isAcross) {
@@ -46,8 +41,8 @@ class Clue {
     } else {
       s += '|'+this.x;
     }
-    s += '.'+this.n+'.'+this.answerLen()+'|';
-    for (var i=0; i<this.answerLen(); i++) {
+    s += '.'+this.n+'.'+len+'|';
+    for (var i=0; i<len; i++) {
       s+='X';
     }
     s+='|'+this.text;
