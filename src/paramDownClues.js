@@ -5,12 +5,7 @@ class ParamDownClues extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('ParamDownClues : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-
   }
   
   render() {

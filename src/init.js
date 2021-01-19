@@ -10,16 +10,7 @@ class Init extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('Init : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-    console.log('Init : componentDidMount : enter');
-  }
-
-  componentDidUpdate() {
-    console.log('Init : componentDidUpdate : enter');
   }
 
   renderCreate() {

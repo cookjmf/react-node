@@ -135,6 +135,25 @@ export const DOWN_VALUES = [7, 15, 20];
 
 export const OCR_ONLINE_URL = 'https://www.onlineocr.net';
 
+export const HEADER_7 = ''+
+    '           1   2   3   4   5   6   7\n'+
+    '        ----------------------------\n';
+
+export const HEADER_15 = ''+
+    '                                               1                    \n'+
+    '           1   2   3   4   5   6   7   8   9   0   1   2   3   4   5\n'+
+    '        ------------------------------------------------------------\n';
+
+export const HEADER_20 = ''+
+    '                                               1                                       2\n'+
+    '           1   2   3   4   5   6   7   8   9   0   1   2   3   4   5   6   7   8   9   0\n'+
+    '        --------------------------------------------------------------------------------\n';
+
+export const HEADER_MAP = new Map();
+HEADER_MAP.set(7, HEADER_7);
+HEADER_MAP.set(15, HEADER_15);
+HEADER_MAP.set(20, HEADER_20);
+
 // ---- functions ----
 
 export const toCellId = (y, x) => {
@@ -145,6 +164,20 @@ export const toChar = (inta) => {
   let a2 = 96+inta;
   let c2 = String.fromCharCode(a2);
   return c2;
+}
+
+export const cellKeyFromCellId = (id) => {
+  let c1 = id.substring(0,1);
+  let y = fromChar(c1);
+  let c2 = id.substring(1,2);
+  let x = fromChar(c2);
+  return cellKey(y,x);
+}
+
+export const fromChar = (ca) => {
+  let a2 = ca.charCodeAt(0); // gets ascii code
+  let n2 = a2-96;
+  return n2;
 }
 
 export const removeNewLines = (lines) => {
@@ -318,7 +351,7 @@ export const clueKey = (y, x, direction) => {
 }
     
 export const direction = (isAcross) => {
-  var d = 'd';
+  let d = 'd';
   if (isAcross) {
     d = 'a';
   }
@@ -337,5 +370,20 @@ export const objectToMap = (obj1) => {
 
 export const newDate = () => {
   return new Date().toISOString();
+}
+
+export const header = (maxAcross) => {
+  let hdr = HEADER_MAP.get(maxAcross);
+  return hdr;
+}
+
+export const formatNum = (n) => {
+  if (n < 10) {
+    return '  '+n;
+  } else if (n < 100) {
+    return ' '+n;
+  } else {
+    return n;
+  }
 }
 

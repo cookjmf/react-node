@@ -7,18 +7,8 @@ import * as Util from './util';
 class Param extends React.Component {
 
   constructor(props) {
-    
-    super(props);
-    console.log('Param : constructor : enter');
+    super(props); 
     this.state = {};
-  }
-
-  componentDidMount() {
-    console.log('Param : componentDidMount : enter');
-  }
-
-  componentDidUpdate() {
-    console.log('Param : componentDidUpdate : enter');
   }
   
   render() {

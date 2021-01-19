@@ -6,17 +6,9 @@ class ParamCell extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('ParamCell : constructor : enter');
     this.state = {};
   }
 
-  componentDidMount() {
-    console.log('ParamCell : componentDidMount : enter');
-  }
-
-  componentDidUpdate() {
-    console.log('ParamCell : componentDidUpdate : enter');
-  }
   
   renderNumber(id, cls, val) {
     console.log('ParamCell : renderNumber : id : '+id);
@@ -111,14 +103,17 @@ class ParamCell extends React.Component {
     let cword = this.props.cword;
     let cellMap = cword.cellMap;
 
+    let numberedMaxAcross = cword.getNumberedMaxAcross();
+    let numberedMaxDown = cword.getNumberedMaxDown();
+
     let boardArrayKey = this.props.boardArrayKey;
     if (boardArrayKey == null) {
       return <p>E101</p>
     } else {
       console.log('ParamCell : render : boardArrayKey : '+boardArrayKey);
 
-      let pMaxAcross = this.props.numberedMaxAcross;
-      let pMaxDown = this.props.numberedMaxDown;
+      let pMaxAcross = numberedMaxAcross;
+      let pMaxDown = numberedMaxDown;
       let onClick = this.props.onClick;
 
       return (

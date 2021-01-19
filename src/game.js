@@ -31,7 +31,9 @@ class Game extends React.Component {
     this.onKeyUpParamAcrossTextarea = this.onKeyUpParamAcrossTextarea.bind(this);
     this.onKeyUpParamDownTextarea = this.onKeyUpParamDownTextarea.bind(this);
     // play
-    this.onClickPlayCell = this.onClickPlayCell.bind(this);
+    this.onChangePlayCell = this.onChangePlayCell.bind(this);
+    this.onKeyUpPlayCell = this.onKeyUpPlayCell.bind(this);
+    this.onKeyDownPlayCell = this.onKeyDownPlayCell.bind(this);
     this.onClickPlayAcrossClues = this.onClickPlayAcrossClues.bind(this);
     this.onClickPlayDownClues = this.onClickPlayDownClues.bind(this);
 
@@ -333,10 +335,37 @@ class Game extends React.Component {
 
   }
 
-  onClickPlayCell(id) {
+  onChangePlayCell(ev) {
 
     console.log('Game : START : -------------------------------------------->');
-    console.log('Game : START : onClickPlayCell ----> '+id+'------------->');
+    console.log('Game : START : onChangePlayCell ----> '+ev+'------------->');
+    console.log('Game : START : -------------------------------------------->');  
+
+    var elem = ev.currentTarget;
+    var id = elem.id;
+    let cword = this.state.cword;
+    cword.cellSelected(id);
+
+    
+
+  }
+
+  onKeyUpPlayCell(ev) {
+
+    console.log('Game : START : -------------------------------------------->');
+    console.log('Game : START : onKeyUpPlayCell ----> '+ev+'------------->');
+    console.log('Game : START : -------------------------------------------->');  
+
+    // let cword = this.state.cword;
+    // cword.toggleParamCell(id);
+
+    // this.storeSave(cword);
+  }
+
+  onKeyDownPlayCell(ev) {
+
+    console.log('Game : START : -------------------------------------------->');
+    console.log('Game : START : onKeyDownPlayCell ----> '+ev+'------------->');
     console.log('Game : START : -------------------------------------------->');  
 
     // let cword = this.state.cword;
@@ -881,7 +910,9 @@ class Game extends React.Component {
         /> 
         <Play
           cword={ cword }
-          onClickPlayCell={ this.onClickPlayCell }
+          onChangePlayCell={ this.onChangePlayCell }
+          onKeyUpPlayCell={ this.onKeyUpPlayCell }
+          onKeyDownPlayCell={ this.onKeyDownPlayCell }
           onClickPlayAcrossClue={ this.onClickPlayAcrossClue }
           onClickPlayDownClue={ this.onClickPlayDownClue }
         />

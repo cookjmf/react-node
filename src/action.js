@@ -5,19 +5,7 @@ class Action extends React.Component {
 
   constructor(props) {   
     super(props);
-    console.log('Action : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-    console.log('Action : componentDidMount : enter');
-
-
-  }
-
-  componentDidUpdate() {
-    console.log('Action : componentDidUpdate : enter');
-
   }
 
   render() {

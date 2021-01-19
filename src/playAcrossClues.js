@@ -6,16 +6,11 @@ class PlayAcrossClues extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('PlayAcrossClues : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-
   }
   
   render() {
-    console.log('PlayAcrossClues : render : enter');
+    // console.log('PlayAcrossClues : render : enter');
 
     let cword = this.props.cword;
 
@@ -31,7 +26,7 @@ class PlayAcrossClues extends React.Component {
       <>
        { acrossClueKeys.map( 
         (acrossClueKey, index) => { 
-          console.log("create acrossClue for acrossClueKey : ..."+acrossClueKey+"... index : "+index);
+          // console.log("create acrossClue for acrossClueKey : ..."+acrossClueKey+"... index : "+index);
           return(
             <PlayAcrossClue
             key={acrossClueKey}

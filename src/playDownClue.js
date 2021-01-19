@@ -5,16 +5,11 @@ class PlayDownClue extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('PlayDownClue : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-
   }
   
   render() {
-    console.log('PlayDownClue : render : enter');
+    // console.log('PlayDownClue : render : enter');
 
     let cword = this.props.cword;
 
@@ -24,7 +19,7 @@ class PlayDownClue extends React.Component {
     let clue = clueMap.get(downClueKey);
 
     let id = 'cw-clues-down-row-'+(downClueNum+1);
-    let labelText = downClueKey+". ";
+    let labelText = clue.getLabel()+". ";
 
     let id2 = 'cdo'+downClueKey;
     let id3 = 'acdo'+downClueKey;

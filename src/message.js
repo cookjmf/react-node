@@ -5,9 +5,7 @@ class Message extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('Message : enter : constructor');
-    this.state = {
-    };
+    this.state = {};
   }
 
   renderWithConfirm(fullText, cls, confirmText) {

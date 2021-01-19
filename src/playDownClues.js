@@ -6,16 +6,11 @@ class PlayDownClues extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('PlayDownClues : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-
   }
   
   render() {
-    console.log('PlayDownClues : render : enter');
+    // console.log('PlayDownClues : render : enter');
   
     let cword = this.props.cword;
 
@@ -31,7 +26,7 @@ class PlayDownClues extends React.Component {
       <>
         { downClueKeys.map( 
         (downClueKey, index) => { 
-          console.log("create downClue for downClueKey : ..."+downClueKey+"... index : "+index);
+          // console.log("create downClue for downClueKey : ..."+downClueKey+"... index : "+index);
           return(
             <PlayDownClue
             key={downClueKey}

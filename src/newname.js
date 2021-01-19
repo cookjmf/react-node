@@ -6,16 +6,7 @@ class NewName extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('NewName : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-    console.log('NewName : componentDidMount : enter');
-  }
-
-  componentDidUpdate() {
-    console.log('NewName : componentDidUpdate : enter');
   }
   
   render() {

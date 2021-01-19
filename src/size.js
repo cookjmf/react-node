@@ -6,18 +6,7 @@ class Size extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('Size : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-    console.log('Size : componentDidMount : enter');
-
-  }
-
-  componentDidUpdate() {
-    console.log('Size : componentDidUpdate : enter');
-
   }
   
   render() {

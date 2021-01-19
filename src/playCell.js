@@ -6,20 +6,11 @@ class PlayCell extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('PlayCell : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-    console.log('PlayCell : componentDidMount : enter');
-  }
-
-  componentDidUpdate() {
-    console.log('PlayCell : componentDidUpdate : enter');
   }
   
   renderNumber(id, cls, val) {
-    console.log('PlayCell : renderNumber : id : '+id);
+    // console.log('PlayCell : renderNumber : id : '+id);
     return (
       <>
         <div id={id} className={cls} name={id} key={id} readOnly>
@@ -29,21 +20,23 @@ class PlayCell extends React.Component {
     );
   }
 
-  renderNormalCell(id, cls, val, onClick) {
-    console.log('PlayCell : renderInput : id : '+id);  
+  renderNormalCell(id, val, onChange, onKeyUp, onKeyDown) {
+    // console.log('PlayCell : renderInput : id : '+id);  
     return (
       <>
-        <input id={id} className={cls} name={id} key={id} type='text' 
+        <input id={id} className="cw-item" name={id} key={id} type='text' 
           minLength='1' maxLength='1' value={val}
-          onClick={(ev) => onClick(ev.target.id)}
-          readOnly>
+          onChange={(ev) => onChange(ev)}
+          onKeyUp={(ev) => onKeyUp(ev)}
+          onKeyDown={(ev) => onKeyDown(ev)}
+          >
         </input>
       </>   
     );
   }
 
   renderBlankCell(id) {
-    console.log('PlayCell : renderBlankCell : id : '+id);
+    // console.log('PlayCell : renderBlankCell : id : '+id);
 
     return (
       <>
@@ -53,8 +46,8 @@ class PlayCell extends React.Component {
     );
   }
 
-  renderCell(boardArrayKey, pMaxAcross, pMaxDown, cellMap, onClick) {
-    console.log('PlayCell : renderCell : enter : boardArrayKey : '+boardArrayKey);
+  renderCell(boardArrayKey, pMaxAcross, pMaxDown, cellMap, onChange, onKeyUp, onKeyDown) {
+    // console.log('PlayCell : renderCell : enter : boardArrayKey : '+boardArrayKey);
     let y = Util.row(boardArrayKey);
     let x = Util.column(boardArrayKey);
     let id = 'na-'+Util.toCellId(y,x);
@@ -88,32 +81,38 @@ class PlayCell extends React.Component {
       if (isBlank) {
         return this.renderBlankCell(id);
       } else {
-        return this.renderNormalCell(id, val, onClick);
+        return this.renderNormalCell(id, val, onChange, onKeyUp, onKeyDown);
       } 
     }
   }
   
   render() {
-    console.log('PlayCell : render : enter');
+    // console.log('PlayCell : render : enter');
 
     // key is "special", even though its been passed in - it does not show in props !!
 
     let cword = this.props.cword;
     let cellMap = cword.cellMap;
 
+    let numberedMaxAcross = cword.getNumberedMaxAcross();
+    let numberedMaxDown = cword.getNumberedMaxDown();
+
     let boardArrayKey = this.props.boardArrayKey;
     if (boardArrayKey == null) {
       return <p>E101</p>
     } else {
-      console.log('ParamCell : render : boardArrayKey : '+boardArrayKey);
+      // console.log('ParamCell : render : boardArrayKey : '+boardArrayKey);
 
-      let pMaxAcross = this.props.numberedMaxAcross;
-      let pMaxDown = this.props.numberedMaxDown;
-      let onClick = this.props.onClick;
+      let pMaxAcross = numberedMaxAcross;
+      let pMaxDown = numberedMaxDown;
+      let onChange = this.props.onChange;
+
+      let onKeyUp = this.props.onKeyUp;
+      let onKeyDown = this.props.onKeyDown;
 
       return (
         <>
-        {this.renderCell(boardArrayKey, pMaxAcross, pMaxDown, cellMap, onClick)}
+        {this.renderCell(boardArrayKey, pMaxAcross, pMaxDown, cellMap, onChange, onKeyUp, onKeyDown)}
         </>
       );
     }

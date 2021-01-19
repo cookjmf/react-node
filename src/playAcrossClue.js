@@ -5,16 +5,11 @@ class PlayAcrossClue extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('PlayAcrossClue : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-
   }
   
   render() {
-    console.log('PlayAcrossClue : render : enter');
+    // console.log('PlayAcrossClue : render : enter');
 
     let cword = this.props.cword;
 
@@ -24,7 +19,7 @@ class PlayAcrossClue extends React.Component {
     let clue = clueMap.get(acrossClueKey);
 
     let id = 'cw-clues-across-row-'+(acrossClueNum+1);
-    let labelText = acrossClueKey+". ";
+    let labelText = clue.getLabel()+". ";
 
     let id2 = 'cac'+acrossClueKey;
     let id3 = 'acac'+acrossClueKey;

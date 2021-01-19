@@ -10,6 +10,7 @@ import * as Util from './util';
   text : the text of clue
   n : ordinal of clue on row / column 
   firstCell : the Cell of first letter
+  answerLen : length of answer
 */
 class Clue {
   constructor(y, x, isAcross, clueNumber, answer, text, n) {
@@ -21,6 +22,7 @@ class Clue {
     this.text = text;
     this.n = n;
     this.firstCell = null;
+    this.answerLen = 0;
   }
 
   getFirstCellKey() {
@@ -29,10 +31,7 @@ class Clue {
 
   toInputFormat() {
     // (Y|X|A/D|ClueId|Answer|Clue)
-    let len = 0;
-    if (this.answer !== null) {
-      len = this.answer.length;
-    }
+    let len = this.answerLen;
 
     var s = this.y+'|'+this.x;
     s += '|'+Util.direction(this.isAcross).toUpperCase();

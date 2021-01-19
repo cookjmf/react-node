@@ -5,12 +5,7 @@ class ParamAcrossClues extends React.Component {
   constructor(props) {
     
     super(props);
-    console.log('ParamAcrossClues : constructor : enter');
     this.state = {};
-  }
-
-  componentDidMount() {
-
   }
   
   render() {
